@@ -1,6 +1,7 @@
 use crate::image::{Image, Pixel};
 
 mod image;
+mod vec;
 
 fn main() {
     let test_size = 640;
