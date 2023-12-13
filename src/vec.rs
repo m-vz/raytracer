@@ -4,7 +4,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use float_cmp::{ApproxEq, F64Margin};
 
 #[derive(Debug, Copy, Clone)]
-struct Vec3(f64, f64, f64);
+pub(crate) struct Vec3(pub f64, pub f64, pub f64);
 
 #[allow(dead_code)]
 impl Vec3 {
@@ -199,7 +199,7 @@ impl ApproxEq for Vec3 {
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::{approx_eq, assert_approx_eq};
+    use float_cmp::assert_approx_eq;
 
     use super::Vec3;
 
@@ -215,9 +215,9 @@ mod tests {
     fn normalize() {
         let mut v = Vec3(2.0, 0.0, 0.0);
 
-        assert!(approx_eq!(Vec3, v.normalized(), Vec3(1.0, 0.0, 0.0)));
+        assert_approx_eq!(Vec3, v.normalized(), Vec3(1.0, 0.0, 0.0));
         v.normalize();
-        assert!(approx_eq!(Vec3, v, Vec3(1.0, 0.0, 0.0)))
+        assert_approx_eq!(Vec3, v, Vec3(1.0, 0.0, 0.0))
     }
 
     #[test]
@@ -226,12 +226,12 @@ mod tests {
         let v2 = Vec3(4.0, 5.0, 6.0);
         let t = 2.0;
 
-        assert!(approx_eq!(Vec3, v1 + v2, Vec3(5.0, 7.0, 9.0)));
+        assert_approx_eq!(Vec3, v1 + v2, Vec3(5.0, 7.0, 9.0));
         v1 += v2;
-        assert!(approx_eq!(Vec3, v1, Vec3(5.0, 7.0, 9.0)));
-        assert!(approx_eq!(Vec3, v1 + t, Vec3(7.0, 9.0, 11.0)));
+        assert_approx_eq!(Vec3, v1, Vec3(5.0, 7.0, 9.0));
+        assert_approx_eq!(Vec3, v1 + t, Vec3(7.0, 9.0, 11.0));
         v1 += t;
-        assert!(approx_eq!(Vec3, v1, Vec3(7.0, 9.0, 11.0)));
+        assert_approx_eq!(Vec3, v1, Vec3(7.0, 9.0, 11.0));
     }
 
     #[test]
@@ -240,12 +240,12 @@ mod tests {
         let v2 = Vec3(1.0, 2.0, 3.0);
         let t = 2.0;
 
-        assert!(approx_eq!(Vec3, v1 - v2, Vec3(3.0, 3.0, 3.0)));
+        assert_approx_eq!(Vec3, v1 - v2, Vec3(3.0, 3.0, 3.0));
         v1 -= v2;
-        assert!(approx_eq!(Vec3, v1, Vec3(3.0, 3.0, 3.0)));
-        assert!(approx_eq!(Vec3, v1 - t, Vec3(1.0, 1.0, 1.0)));
+        assert_approx_eq!(Vec3, v1, Vec3(3.0, 3.0, 3.0));
+        assert_approx_eq!(Vec3, v1 - t, Vec3(1.0, 1.0, 1.0));
         v1 -= t;
-        assert!(approx_eq!(Vec3, v1, Vec3(1.0, 1.0, 1.0)));
+        assert_approx_eq!(Vec3, v1, Vec3(1.0, 1.0, 1.0));
     }
 
     #[test]
@@ -254,12 +254,12 @@ mod tests {
         let v2 = Vec3(4.0, 5.0, 6.0);
         let t = 2.0;
 
-        assert!(approx_eq!(Vec3, v1 * v2, Vec3(4.0, 10.0, 18.0)));
+        assert_approx_eq!(Vec3, v1 * v2, Vec3(4.0, 10.0, 18.0));
         v1 *= v2;
-        assert!(approx_eq!(Vec3, v1, Vec3(4.0, 10.0, 18.0)));
-        assert!(approx_eq!(Vec3, v1 * t, Vec3(8.0, 20.0, 36.0)));
+        assert_approx_eq!(Vec3, v1, Vec3(4.0, 10.0, 18.0));
+        assert_approx_eq!(Vec3, v1 * t, Vec3(8.0, 20.0, 36.0));
         v1 *= t;
-        assert!(approx_eq!(Vec3, v1, Vec3(8.0, 20.0, 36.0)));
+        assert_approx_eq!(Vec3, v1, Vec3(8.0, 20.0, 36.0));
     }
 
     #[test]
@@ -267,9 +267,9 @@ mod tests {
         let mut v1 = Vec3(1.0, 2.0, 3.0);
         let t = 2.0;
 
-        assert!(approx_eq!(Vec3, v1 / t, Vec3(0.5, 1.0, 1.5)));
+        assert_approx_eq!(Vec3, v1 / t, Vec3(0.5, 1.0, 1.5));
         v1 /= t;
-        assert!(approx_eq!(Vec3, v1, Vec3(0.5, 1.0, 1.5)));
+        assert_approx_eq!(Vec3, v1, Vec3(0.5, 1.0, 1.5));
     }
 
     #[test]
@@ -285,6 +285,6 @@ mod tests {
         let v1 = Vec3(1.0, 2.0, 3.0);
         let v2 = Vec3(4.0, 5.0, 6.0);
 
-        assert!(approx_eq!(Vec3, v1.cross(&v2), Vec3(-3.0, 6.0, -3.0)));
+        assert_approx_eq!(Vec3, v1.cross(&v2), Vec3(-3.0, 6.0, -3.0));
     }
 }
