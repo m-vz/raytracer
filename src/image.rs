@@ -45,8 +45,7 @@ impl Image {
         // write data
         for y in 0..self.height {
             for x in 0..self.width {
-                let postfix = if x == self.width - 1 { "\n" } else { " " };
-                let pixel = format!("{}{}", self.get_pixel(x, y), postfix);
+                let pixel = format!("{}\n", self.get_pixel(x, y));
 
                 file.write_all(pixel.as_bytes())?;
             }
