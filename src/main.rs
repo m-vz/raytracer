@@ -3,6 +3,7 @@ use crate::image::Image;
 
 mod color;
 mod image;
+mod ray;
 mod vec;
 
 fn main() {

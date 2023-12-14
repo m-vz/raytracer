@@ -4,7 +4,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use float_cmp::{ApproxEq, F64Margin};
 
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct Vec3(pub f64, pub f64, pub f64);
+pub struct Vec3(pub f64, pub f64, pub f64);
 
 #[allow(dead_code)]
 impl Vec3 {
@@ -154,6 +154,14 @@ impl MulAssign<f64> for Vec3 {
         self.0 *= rhs;
         self.1 *= rhs;
         self.2 *= rhs;
+    }
+}
+
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        rhs * self
     }
 }
 
