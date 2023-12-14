@@ -16,6 +16,14 @@ impl Vec3 {
         Self(1.0, 1.0, 1.0)
     }
 
+    pub fn random() -> Self {
+        Self(
+            rand::random::<f64>(),
+            rand::random::<f64>(),
+            rand::random::<f64>(),
+        )
+    }
+
     pub fn copy(&self) -> Self {
         Self(self.0, self.1, self.2)
     }
