@@ -11,11 +11,13 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn black(width: u32, height: u32) -> Self {
-        Image::uniform(width, height, Color::black())
+    pub fn with_aspect_ratio(width: u32, aspect_ratio: f64, color: Color) -> Self {
+        let height = (width as f64 / aspect_ratio) as u32;
+
+        Self::with_dimensions(width, height, color)
     }
 
-    pub fn uniform(width: u32, height: u32, color: Color) -> Self {
+    pub fn with_dimensions(width: u32, height: u32, color: Color) -> Self {
         Self {
             width,
             height,
@@ -52,5 +54,43 @@ impl Image {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use float_cmp::assert_approx_eq;
+
+    use crate::color::Color;
+
+    use super::Image;
+
+    #[test]
+    fn create_with_aspect_ratio() {
+        let image = Image::with_aspect_ratio(32, 16.0 / 9.0, Color::black());
+
+        assert_eq!(image.width, 32);
+        assert_eq!(image.height, 18);
+        assert_approx_eq!(Color, image.get_pixel(4, 9), Color::black());
+    }
+
+    #[test]
+    fn create_with_dimensions() {
+        let color = Color::random();
+        let image = Image::with_dimensions(10, 8, color);
+
+        assert_eq!(image.width, 10);
+        assert_eq!(image.height, 8);
+        assert_approx_eq!(Color, image.get_pixel(3, 5), color);
+    }
+
+    #[test]
+    fn pixels() {
+        let color = Color::random();
+        let mut image = Image::with_dimensions(3, 3, Color::black());
+
+        assert_approx_eq!(Color, image.get_pixel(1, 1), Color::black());
+        image.set_pixel(1, 1, color);
+        assert_approx_eq!(Color, image.get_pixel(1, 1), color);
     }
 }

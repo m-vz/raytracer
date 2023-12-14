@@ -7,8 +7,8 @@ mod ray;
 mod vec;
 
 fn main() {
-    let test_size = 640;
-    let mut test_image = Image::black(test_size, test_size);
+    let test_size = 400;
+    let mut test_image = Image::with_aspect_ratio(test_size, 16.0 / 9.0, Color::black());
 
     let test_size_float = test_size as f64;
     for y in 0..test_size {
