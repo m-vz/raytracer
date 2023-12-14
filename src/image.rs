@@ -18,11 +18,22 @@ impl Image {
     }
 
     pub fn with_dimensions(width: u32, height: u32, color: Color) -> Self {
+        let height = height.max(1);
+        let width = width.max(1);
+
         Self {
             width,
             height,
             data: vec![color; (width * height) as usize],
         }
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
     }
 
     pub fn set_pixel(&mut self, x: u32, y: u32, value: Color) {
@@ -67,11 +78,11 @@ mod tests {
 
     #[test]
     fn create_with_aspect_ratio() {
-        let image = Image::with_aspect_ratio(32, 16.0 / 9.0, Color::black());
+        let image = Image::with_aspect_ratio(10, 16.0 / 9.0, Color::black());
 
-        assert_eq!(image.width, 32);
-        assert_eq!(image.height, 18);
-        assert_approx_eq!(Color, image.get_pixel(4, 9), Color::black());
+        assert_eq!(image.width, 10);
+        assert_eq!(image.height, 5);
+        assert_approx_eq!(Color, image.get_pixel(4, 0), Color::black());
     }
 
     #[test]
