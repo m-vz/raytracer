@@ -10,8 +10,19 @@ impl Ray {
     pub fn look_at(origin: Vec3, target: Vec3) -> Self {
         Self {
             origin,
-            direction: (target - origin).normalized(),
+            direction: target - origin,
         }
+    }
+
+    pub fn normalized(&self) -> Self {
+        Ray {
+            origin: self.origin,
+            direction: self.direction.normalized(),
+        }
+    }
+
+    pub fn normalize(&mut self) {
+        self.direction.normalize();
     }
 
     pub fn at(&self, t: f64) -> Vec3 {
@@ -21,9 +32,11 @@ impl Ray {
 
 #[cfg(test)]
 mod tests {
-    use super::Ray;
-    use crate::vec::Vec3;
     use float_cmp::assert_approx_eq;
+
+    use crate::vec::Vec3;
+
+    use super::Ray;
 
     #[test]
     fn at() {

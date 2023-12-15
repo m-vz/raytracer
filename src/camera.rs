@@ -1,9 +1,10 @@
+use std::path::Path;
+
 use crate::color::Color;
 use crate::image::Image;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 use crate::viewport::Viewport;
-use std::path::Path;
 
 pub struct Camera {
     position: Vec3,
@@ -46,16 +47,19 @@ impl Camera {
     }
 
     fn ray_color(ray: Ray) -> Color {
-        Color::black()
+        let a = 0.5 * (ray.normalized().direction.y() + 1.0);
+
+        (1.0 - a) * Color::white() + a * Color::new(0.5, 0.7, 1.0)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use float_cmp::assert_approx_eq;
+
     use crate::color::Color;
     use crate::image::Image;
     use crate::vec::Vec3;
-    use float_cmp::assert_approx_eq;
 
     use super::Camera;
 
