@@ -1,29 +1,19 @@
+use crate::camera::Camera;
 use crate::color::Color;
 use crate::image::Image;
+use crate::vec::Vec3;
 
+mod camera;
 mod color;
 mod image;
 mod ray;
 mod vec;
+mod viewport;
 
 fn main() {
     let test_size = 400;
-    let mut image = Image::with_aspect_ratio(test_size, 16.0 / 9.0, Color::black());
+    let image = Image::with_aspect_ratio(test_size, 16.0 / 9.0, Color::black());
+    let mut camera = Camera::new(Vec3::zero(), Vec3::forward(), Vec3::up(), 1.0, 1.0, image);
 
-    let dimensions_float = (image.width() as f64, image.height() as f64);
-    for y in 0..image.height() {
-        for x in 0..image.width() {
-            image.set_pixel(
-                x,
-                y,
-                Color::new(
-                    x as f64 / dimensions_float.0,
-                    y as f64 / dimensions_float.1,
-                    0.0,
-                ),
-            );
-        }
-    }
-
-    image.write_ppm("output/test.ppm").unwrap();
+    camera.render_to("output/test.ppm").unwrap()
 }

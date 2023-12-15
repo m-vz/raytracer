@@ -10,6 +10,7 @@ pub struct Image {
     data: Vec<Color>,
 }
 
+#[allow(dead_code)]
 impl Image {
     pub fn with_aspect_ratio(width: u32, aspect_ratio: f64, color: Color) -> Self {
         let height = (width as f64 / aspect_ratio) as u32;
@@ -36,8 +37,20 @@ impl Image {
         self.height
     }
 
+    pub fn resolution(&self) -> (u32, u32) {
+        (self.width, self.height)
+    }
+
+    pub fn aspect(&self) -> f64 {
+        self.width as f64 / self.height as f64
+    }
+
     pub fn set_pixel(&mut self, x: u32, y: u32, value: Color) {
         self.data[(y * self.width + x) as usize] = value;
+    }
+
+    pub fn set_pixel_by_index(&mut self, i: usize, value: Color) {
+        self.data[i] = value;
     }
 
     pub fn get_pixel(&self, x: u32, y: u32) -> Color {

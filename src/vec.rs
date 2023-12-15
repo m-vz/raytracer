@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use float_cmp::{ApproxEq, F64Margin};
 
@@ -14,6 +14,18 @@ impl Vec3 {
 
     pub fn unit() -> Self {
         Self(1.0, 1.0, 1.0)
+    }
+
+    pub fn right() -> Self {
+        Self(1.0, 0.0, 0.0)
+    }
+
+    pub fn up() -> Self {
+        Self(0.0, 1.0, 0.0)
+    }
+
+    pub fn forward() -> Self {
+        Self(0.0, 0.0, -1.0)
     }
 
     pub fn random() -> Self {
@@ -130,6 +142,14 @@ impl SubAssign<f64> for Vec3 {
         self.0 -= rhs;
         self.1 -= rhs;
         self.2 -= rhs;
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        Self(-self.0, -self.1, -self.2)
     }
 }
 
@@ -262,6 +282,7 @@ mod tests {
         assert_approx_eq!(Vec3, v1 - t, Vec3(1.0, 1.0, 1.0));
         v1 -= t;
         assert_approx_eq!(Vec3, v1, Vec3(1.0, 1.0, 1.0));
+        assert_approx_eq!(Vec3, -v1, Vec3(-1.0, -1.0, -1.0));
     }
 
     #[test]
