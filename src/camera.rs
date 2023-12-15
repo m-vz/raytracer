@@ -23,7 +23,7 @@ impl Camera {
     ) -> Self {
         let viewport = Viewport::with_center(
             position + focal_length * forward,
-            (viewport_height, viewport_height * target.aspect()),
+            (viewport_height * target.aspect(), viewport_height),
             target.resolution(),
             forward.cross(&up),
             -up,
