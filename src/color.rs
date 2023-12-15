@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use float_cmp::{ApproxEq, F64Margin};
 
@@ -21,6 +22,10 @@ impl Color {
         Self::new(0.0, 0.0, 0.0)
     }
 
+    pub fn white() -> Self {
+        Self::new(1.0, 1.0, 1.0)
+    }
+
     pub fn r(&self) -> f64 {
         self.0 .0
     }
@@ -31,6 +36,84 @@ impl Color {
 
     pub fn b(&self) -> f64 {
         self.0 .2
+    }
+}
+
+impl Add for Color {
+    type Output = Color;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl AddAssign for Color {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+    }
+}
+
+impl Sub for Color {
+    type Output = Color;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0 - rhs.0)
+    }
+}
+
+impl SubAssign for Color {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.0 -= rhs.0;
+    }
+}
+
+impl Mul for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self(self.0 * rhs.0)
+    }
+}
+
+impl MulAssign for Color {
+    fn mul_assign(&mut self, rhs: Self) {
+        self.0 *= rhs.0;
+    }
+}
+
+impl Mul<f64> for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self(self.0 * rhs)
+    }
+}
+
+impl MulAssign<f64> for Color {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.0 *= rhs;
+    }
+}
+
+impl Mul<Color> for f64 {
+    type Output = Color;
+
+    fn mul(self, rhs: Color) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Div<f64> for Color {
+    type Output = Color;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        self * (1.0 / rhs)
+    }
+}
+
+impl DivAssign<f64> for Color {
+    fn div_assign(&mut self, rhs: f64) {
+        *self *= 1.0 / rhs;
     }
 }
 
@@ -53,6 +136,12 @@ impl From<(u8, u8, u8)> for Color {
             value.1 as f64 / 255.0,
             value.2 as f64 / 255.0,
         )
+    }
+}
+
+impl From<Vec3> for Color {
+    fn from(value: Vec3) -> Self {
+        Self(value)
     }
 }
 
@@ -94,5 +183,49 @@ mod tests {
         let color = Color::from((0, 127, 255));
 
         assert_approx_eq!(Color, color, Color::new(0.0, 0.5, 1.0), epsilon = 0.01);
+    }
+
+    #[test]
+    fn addition() {
+        let mut v1 = Color::new(1.0, 0.5, 0.1);
+        let v2 = Color::new(0.5, 1.0, 0.1);
+
+        assert_approx_eq!(Color, v1 + v2, Color::new(1.5, 1.5, 0.2));
+        v1 += v2;
+        assert_approx_eq!(Color, v1, Color::new(1.5, 1.5, 0.2));
+    }
+
+    #[test]
+    fn subtraction() {
+        let mut v1 = Color::new(0.5, 1.0, 0.1);
+        let v2 = Color::new(1.0, 0.5, 0.1);
+
+        assert_approx_eq!(Color, v1 - v2, Color::new(-0.5, 0.5, 0.0));
+        v1 -= v2;
+        assert_approx_eq!(Color, v1, Color::new(-0.5, 0.5, 0.0));
+    }
+
+    #[test]
+    fn multiplication() {
+        let mut v1 = Color::new(1.0, 0.5, 0.1);
+        let v2 = Color::new(0.5, 1.0, 0.1);
+        let t = 2.0;
+
+        assert_approx_eq!(Color, v1 * v2, Color::new(0.5, 0.5, 0.01));
+        v1 *= v2;
+        assert_approx_eq!(Color, v1, Color::new(0.5, 0.5, 0.01));
+        assert_approx_eq!(Color, v1 * t, Color::new(1.0, 1.0, 0.02));
+        v1 *= t;
+        assert_approx_eq!(Color, v1, Color::new(1.0, 1.0, 0.02));
+    }
+
+    #[test]
+    fn division() {
+        let mut v1 = Color::new(1.0, 0.5, 0.1);
+        let t = 2.0;
+
+        assert_approx_eq!(Color, v1 / t, Color::new(0.5, 0.25, 0.05));
+        v1 /= t;
+        assert_approx_eq!(Color, v1, Color::new(0.5, 0.25, 0.05));
     }
 }

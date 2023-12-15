@@ -97,22 +97,6 @@ impl AddAssign for Vec3 {
     }
 }
 
-impl Add<f64> for Vec3 {
-    type Output = Vec3;
-
-    fn add(self, rhs: f64) -> Self::Output {
-        Self(self.0 + rhs, self.1 + rhs, self.2 + rhs)
-    }
-}
-
-impl AddAssign<f64> for Vec3 {
-    fn add_assign(&mut self, rhs: f64) {
-        self.0 += rhs;
-        self.1 += rhs;
-        self.2 += rhs;
-    }
-}
-
 impl Sub for Vec3 {
     type Output = Vec3;
 
@@ -126,22 +110,6 @@ impl SubAssign for Vec3 {
         self.0 -= rhs.0;
         self.1 -= rhs.1;
         self.2 -= rhs.2;
-    }
-}
-
-impl Sub<f64> for Vec3 {
-    type Output = Vec3;
-
-    fn sub(self, rhs: f64) -> Self::Output {
-        Self(self.0 - rhs, self.1 - rhs, self.2 - rhs)
-    }
-}
-
-impl SubAssign<f64> for Vec3 {
-    fn sub_assign(&mut self, rhs: f64) {
-        self.0 -= rhs;
-        self.1 -= rhs;
-        self.2 -= rhs;
     }
 }
 
@@ -260,29 +228,21 @@ mod tests {
     fn addition() {
         let mut v1 = Vec3(1.0, 2.0, 3.0);
         let v2 = Vec3(4.0, 5.0, 6.0);
-        let t = 2.0;
 
         assert_approx_eq!(Vec3, v1 + v2, Vec3(5.0, 7.0, 9.0));
         v1 += v2;
         assert_approx_eq!(Vec3, v1, Vec3(5.0, 7.0, 9.0));
-        assert_approx_eq!(Vec3, v1 + t, Vec3(7.0, 9.0, 11.0));
-        v1 += t;
-        assert_approx_eq!(Vec3, v1, Vec3(7.0, 9.0, 11.0));
     }
 
     #[test]
     fn subtraction() {
         let mut v1 = Vec3(4.0, 5.0, 6.0);
         let v2 = Vec3(1.0, 2.0, 3.0);
-        let t = 2.0;
 
         assert_approx_eq!(Vec3, v1 - v2, Vec3(3.0, 3.0, 3.0));
         v1 -= v2;
         assert_approx_eq!(Vec3, v1, Vec3(3.0, 3.0, 3.0));
-        assert_approx_eq!(Vec3, v1 - t, Vec3(1.0, 1.0, 1.0));
-        v1 -= t;
-        assert_approx_eq!(Vec3, v1, Vec3(1.0, 1.0, 1.0));
-        assert_approx_eq!(Vec3, -v1, Vec3(-1.0, -1.0, -1.0));
+        assert_approx_eq!(Vec3, -v1, Vec3(-3.0, -3.0, -3.0));
     }
 
     #[test]
