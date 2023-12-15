@@ -3,6 +3,7 @@ use std::path::Path;
 use crate::color::Color;
 use crate::image::Image;
 use crate::ray::Ray;
+use crate::scene::Scene;
 use crate::vec::Vec3;
 use crate::viewport::Viewport;
 
@@ -36,17 +37,28 @@ impl Camera {
         }
     }
 
-    pub fn render_to<P: AsRef<Path>>(&mut self, path: P) -> std::io::Result<()> {
+    pub fn render<P: AsRef<Path>>(&mut self, scene: &Scene, path: P) -> std::io::Result<()> {
         for (i, pixel) in self.viewport.pixels().iter().enumerate() {
             let ray = Ray::look_at(self.position, *pixel);
 
-            self.target.set_pixel_by_index(i, Camera::ray_color(ray));
+            self.target
+                .set_pixel_by_index(i, Camera::ray_color(scene, ray));
         }
 
         self.target.write_ppm(path)
     }
 
-    fn ray_color(ray: Ray) -> Color {
+    fn ray_color(scene: &Scene, ray: Ray) -> Color {
+        for object in &scene.objects {
+            if object.hit(&ray) {
+                return Color::new(1.0, 0.0, 0.0);
+            }
+        }
+
+        Camera::background(ray)
+    }
+
+    fn background(ray: Ray) -> Color {
         let a = 0.5 * (ray.normalized().direction.y() + 1.0);
 
         (1.0 - a) * Color::white() + a * Color::new(0.5, 0.7, 1.0)
