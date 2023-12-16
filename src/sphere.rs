@@ -1,12 +1,15 @@
 use std::ops::Range;
+use std::rc::Rc;
 
 use crate::hit::{Hit, HitResult};
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
+    pub material: Rc<dyn Material>,
 }
 
 impl Hit for Sphere {
@@ -36,6 +39,7 @@ impl Hit for Sphere {
             t,
             point,
             (point - self.center) / self.radius,
+            Rc::clone(&self.material),
         ))
     }
 }

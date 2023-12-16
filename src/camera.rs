@@ -80,14 +80,11 @@ impl Camera {
         }
 
         if let Some(hit) = scene.hit(&ray, BIAS..f64::INFINITY) {
-            0.5 * self.ray_color(
-                scene,
-                Ray {
-                    origin: hit.point,
-                    direction: hit.normal + Vec3::random_unit_vector(),
-                },
-                bounces + 1,
-            )
+            if let Some((scattered, attenuation)) = hit.material.scatter(&ray, &hit) {
+                attenuation * self.ray_color(scene, scattered, bounces + 1)
+            } else {
+                Color::black()
+            }
         } else {
             Camera::background(ray)
         }
