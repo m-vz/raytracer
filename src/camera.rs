@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use crate::color::Color;
+use crate::hit::Hit;
 use crate::image::Image;
 use crate::ray::Ray;
 use crate::scene::Scene;
@@ -49,18 +50,15 @@ impl Camera {
     }
 
     fn ray_color(scene: &Scene, ray: Ray) -> Color {
-        for object in &scene.objects {
-            if let Some(hit) = object.hit(&ray, 0.0, f64::INFINITY) {
-                return 0.5
-                    * Color::new(
-                        hit.normal.x() + 1.0,
-                        hit.normal.y() + 1.0,
-                        hit.normal.z() + 1.0,
-                    );
-            }
+        if let Some(hit) = scene.hit(&ray, 0.0, f64::INFINITY) {
+            0.5 * Color::new(
+                hit.normal.x() + 1.0,
+                hit.normal.y() + 1.0,
+                hit.normal.z() + 1.0,
+            )
+        } else {
+            Camera::background(ray)
         }
-
-        Camera::background(ray)
     }
 
     fn background(ray: Ray) -> Color {
