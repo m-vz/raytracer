@@ -3,14 +3,16 @@ use crate::vec::Vec3;
 pub struct Ray {
     pub origin: Vec3,
     pub direction: Vec3,
+    pub time: f64,
 }
 
 #[allow(dead_code)]
 impl Ray {
-    pub fn look_at(origin: Vec3, target: Vec3) -> Self {
+    pub fn look_at(origin: Vec3, target: Vec3, time: f64) -> Self {
         Self {
             origin,
             direction: origin.look_at(&target),
+            time,
         }
     }
 
@@ -18,6 +20,7 @@ impl Ray {
         Ray {
             origin: self.origin,
             direction: self.direction.normalized(),
+            time: self.time,
         }
     }
 
@@ -43,6 +46,7 @@ mod tests {
         let ray = Ray {
             origin: Vec3(0.0, 1.0, 3.0),
             direction: Vec3(1.0, 2.0, 0.0),
+            time: 0.0,
         };
         let t = 2.0;
 

@@ -20,6 +20,7 @@ impl Material for Metal {
                     Ray {
                         origin: hit.point,
                         direction: scattered,
+                        time: ray.time,
                     },
                     self.albedo,
                 ));

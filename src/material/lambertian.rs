@@ -11,7 +11,7 @@ pub struct Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _: &Ray, hit: &HitResult) -> Option<(Ray, Color)> {
+    fn scatter(&self, ray: &Ray, hit: &HitResult) -> Option<(Ray, Color)> {
         let mut direction = hit.normal + Vec3::random_unit_vector();
 
         if direction.approx_eq(Vec3::zero(), F64Margin::default()) {
@@ -22,6 +22,7 @@ impl Material for Lambertian {
             Ray {
                 origin: hit.point,
                 direction,
+                time: ray.time,
             },
             self.albedo,
         ))

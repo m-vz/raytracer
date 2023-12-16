@@ -1,5 +1,7 @@
 use std::path::Path;
 
+use rand::random;
+
 use crate::color::Color;
 use crate::hit::Hit;
 use crate::image::Image;
@@ -71,6 +73,7 @@ impl Camera {
                         + defocus_sample.x() * self.defocus_disk.0
                         + defocus_sample.y() * self.defocus_disk.1,
                     sample,
+                    random(),
                 );
 
                 color += self.ray_color(scene, ray, 0);

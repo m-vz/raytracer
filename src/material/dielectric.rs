@@ -24,6 +24,7 @@ impl Material for Dielectric {
                 Ray {
                     origin: hit.point,
                     direction: direction_normalized.reflect(&hit.normal),
+                    time: ray.time,
                 },
                 Color::white(),
             ))
@@ -33,6 +34,7 @@ impl Material for Dielectric {
                 Ray {
                     origin: hit.point,
                     direction: direction_normalized.refract(&hit.normal, refraction_ratio),
+                    time: ray.time,
                 },
                 Color::white(),
             ))

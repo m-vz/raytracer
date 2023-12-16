@@ -23,12 +23,13 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let test_size = 800;
+    let test_size = 400;
     let image = Image::with_aspect_ratio(test_size, 16.0 / 9.0, Color::black());
     let scene = Scene {
         objects: vec![
             Box::new(Sphere {
                 center: Vec3(0.0, -1000.3, -1.0),
+                movement: None,
                 radius: 1000.0,
                 material: Rc::new(Lambertian {
                     albedo: Color::new(0.5, 0.5, 0.5),
@@ -36,13 +37,15 @@ fn main() {
             }),
             Box::new(Sphere {
                 center: Vec3(-0.5, 0.0, -1.0),
+                movement: None,
                 radius: 0.3,
                 material: Rc::new(Dielectric {
                     refraction_index: 1.5,
                 }),
             }),
             Box::new(Sphere {
-                center: Vec3(0.0, 0.0, -1.0),
+                center: Vec3(0.0, 0.0, -0.9),
+                movement: Some(Vec3(0.0, 0.0, -0.2)),
                 radius: 0.3,
                 material: Rc::new(Lambertian {
                     albedo: Color::new(0.0, 0.2, 0.8),
@@ -50,6 +53,7 @@ fn main() {
             }),
             Box::new(Sphere {
                 center: Vec3(0.5, 0.0, -1.0),
+                movement: None,
                 radius: 0.3,
                 material: Rc::new(Metal {
                     albedo: Color::new(0.8, 0.6, 0.2),
@@ -64,7 +68,7 @@ fn main() {
         camera_position.look_at(&Vec3(0.0, 0.0, -1.3)),
         Vec3::up(),
         0.8,
-        10.0,
+        0.0,
         60.0,
         image,
     );

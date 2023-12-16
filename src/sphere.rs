@@ -8,13 +8,25 @@ use crate::vec::Vec3;
 
 pub struct Sphere {
     pub center: Vec3,
+    pub movement: Option<Vec3>,
     pub radius: f64,
     pub material: Rc<dyn Material>,
 }
 
+impl Sphere {
+    fn center(&self, time: f64) -> Vec3 {
+        if let Some(movement) = self.movement {
+            self.center + time * movement
+        } else {
+            self.center
+        }
+    }
+}
+
 impl Hit for Sphere {
     fn hit(&self, ray: &Ray, t_range: Range<f64>) -> Option<HitResult> {
-        let oc = ray.origin - self.center;
+        let center = self.center(ray.time);
+        let oc = ray.origin - center;
         let a = ray.direction.len_sq();
         let half_b = oc.dot(&ray.direction);
         let c = oc.len_sq() - self.radius * self.radius;
@@ -38,7 +50,7 @@ impl Hit for Sphere {
             ray,
             t,
             point,
-            (point - self.center) / self.radius,
+            (point - center) / self.radius,
             Rc::clone(&self.material),
         ))
     }
