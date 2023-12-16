@@ -63,6 +63,17 @@ impl Vec3 {
         }
     }
 
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let mut p = Self::random_in_range(-1.0..1.0);
+            p.2 = 0.0;
+
+            if p.len_sq() < 1.0 {
+                return p;
+            }
+        }
+    }
+
     pub fn copy(&self) -> Self {
         Self(self.0, self.1, self.2)
     }

@@ -14,6 +14,7 @@ const BIAS: f64 = 0.001;
 pub struct Camera {
     pub position: Vec3,
     viewport: Viewport,
+    defocus_disk: (Vec3, Vec3),
     target: Image,
     pub samples: u32,
     pub max_bounces: u32,
@@ -24,27 +25,32 @@ impl Camera {
         position: Vec3,
         forward: Vec3,
         up: Vec3,
-        focal_length: f64,
+        focus_distance: f64,
+        defocus_angle: f64,
         fov: f64,
         target: Image,
     ) -> Self {
-        let theta = math::deg_to_rad(fov);
-        let h = (theta / 2.0).tan();
-        let viewport_height = 2.0 * h * focal_length;
         let direction = forward.normalized();
         let right = direction.cross(&up);
-        let down = direction.cross(&right);
+        let up = right.cross(&direction);
+
+        let h = (math::deg_to_rad(fov) / 2.0).tan();
+        let viewport_height = 2.0 * h * focus_distance;
+
         let viewport = Viewport::with_center(
-            position + focal_length * forward,
+            position + focus_distance * forward,
             (viewport_height * target.aspect(), viewport_height),
             target.resolution(),
             right,
-            down,
+            -up,
         );
+
+        let defocus_radius = focus_distance * math::deg_to_rad(defocus_angle / 2.0).tan();
 
         Self {
             position,
             viewport,
+            defocus_disk: (right * defocus_radius, up * defocus_radius),
             target,
             samples: 10,
             max_bounces: 50,
@@ -59,7 +65,13 @@ impl Camera {
 
             for _ in 0..self.samples {
                 let sample = self.viewport.pixel_sample(i);
-                let ray = Ray::look_at(self.position, sample);
+                let defocus_sample = Vec3::random_in_unit_disk();
+                let ray = Ray::look_at(
+                    self.position
+                        + defocus_sample.x() * self.defocus_disk.0
+                        + defocus_sample.y() * self.defocus_disk.1,
+                    sample,
+                );
 
                 color += self.ray_color(scene, ray, 0);
             }
@@ -121,6 +133,7 @@ mod tests {
             Vec3(0.0, 0.0, -1.0),
             Vec3(0.0, 1.0, 0.0),
             1.0,
+            10.0,
             90.0,
             Image::with_aspect_ratio(1, 1.0, Color::black()),
         );

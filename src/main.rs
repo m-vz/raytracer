@@ -61,9 +61,10 @@ fn main() {
     let camera_position = Vec3(-1.0, 0.25, -0.25);
     let mut camera = Camera::new(
         camera_position,
-        camera_position.look_at(&Vec3(0.0, 0.0, -1.0)),
+        camera_position.look_at(&Vec3(0.0, 0.0, -1.3)),
         Vec3::up(),
-        1.0,
+        0.8,
+        10.0,
         60.0,
         image,
     );
