@@ -110,6 +110,14 @@ impl Vec3 {
     pub fn reflect(&self, normal: &Self) -> Self {
         *self - 2.0 * self.dot(normal) * *normal
     }
+
+    pub fn refract(&self, normal: &Self, refraction_ratio: f64) -> Self {
+        let cos_theta = -self.dot(normal).min(1.0);
+        let orthogonal_part = refraction_ratio * (*self + cos_theta * *normal);
+        let parallel_part = -(1.0 - orthogonal_part.len_sq()).abs().sqrt() * *normal;
+
+        orthogonal_part + parallel_part
+    }
 }
 
 impl Add for Vec3 {
