@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
@@ -26,5 +28,5 @@ impl HitResult {
 }
 
 pub trait Hit {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitResult>;
+    fn hit(&self, ray: &Ray, t_range: Range<f64>) -> Option<HitResult>;
 }

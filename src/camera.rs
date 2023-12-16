@@ -50,7 +50,7 @@ impl Camera {
     }
 
     fn ray_color(scene: &Scene, ray: Ray) -> Color {
-        if let Some(hit) = scene.hit(&ray, 0.0, f64::INFINITY) {
+        if let Some(hit) = scene.hit(&ray, 0.0..f64::INFINITY) {
             0.5 * Color::new(
                 hit.normal.x() + 1.0,
                 hit.normal.y() + 1.0,

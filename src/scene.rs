@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use crate::hit::{Hit, HitResult};
 use crate::ray::Ray;
 
@@ -6,17 +8,16 @@ pub struct Scene {
 }
 
 impl Hit for Scene {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitResult> {
+    fn hit(&self, ray: &Ray, t_range: Range<f64>) -> Option<HitResult> {
         let mut closest_hit: Option<HitResult> = None;
 
         for object in &self.objects {
             if let Some(hit) = object.hit(
                 &ray,
-                t_min,
-                if let Some(hit) = &closest_hit {
+                t_range.start..if let Some(hit) = &closest_hit {
                     hit.t
                 } else {
-                    t_max
+                    t_range.end
                 },
             ) {
                 closest_hit = Some(hit);
