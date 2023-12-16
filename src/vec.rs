@@ -1,7 +1,8 @@
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
 use float_cmp::{ApproxEq, F64Margin};
+use rand::random;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3(pub f64, pub f64, pub f64);
@@ -29,11 +30,37 @@ impl Vec3 {
     }
 
     pub fn random() -> Self {
+        Self(random(), random(), random())
+    }
+
+    pub fn random_in_range(range: Range<f64>) -> Self {
+        let scale = range.end - range.start;
+
         Self(
-            rand::random::<f64>(),
-            rand::random::<f64>(),
-            rand::random::<f64>(),
+            range.start + scale * random::<f64>(),
+            range.start + scale * random::<f64>(),
+            range.start + scale * random::<f64>(),
         )
+    }
+
+    pub fn random_unit_vector() -> Self {
+        loop {
+            let p = Self::random_in_range(-1.0..1.0);
+
+            if p.len_sq() < 1.0 {
+                return p.normalized();
+            }
+        }
+    }
+
+    pub fn random_on_hemisphere(normal: &Self) -> Self {
+        let unit_vector = Self::random_unit_vector();
+
+        if unit_vector.dot(normal) > 0.0 {
+            unit_vector
+        } else {
+            -unit_vector
+        }
     }
 
     pub fn copy(&self) -> Self {

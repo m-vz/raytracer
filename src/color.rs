@@ -10,10 +10,6 @@ pub struct Color(Vec3);
 
 #[allow(dead_code)]
 impl Color {
-    pub fn random() -> Self {
-        Self(Vec3::random())
-    }
-
     pub fn new(r: f64, g: f64, b: f64) -> Self {
         Self(Vec3(r, g, b))
     }
@@ -24,6 +20,10 @@ impl Color {
 
     pub fn white() -> Self {
         Self::new(1.0, 1.0, 1.0)
+    }
+
+    pub fn random() -> Self {
+        Self(Vec3::random())
     }
 
     pub fn r(&self) -> f64 {

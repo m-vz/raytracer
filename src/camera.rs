@@ -8,11 +8,14 @@ use crate::scene::Scene;
 use crate::vec::Vec3;
 use crate::viewport::Viewport;
 
+const BIAS: f64 = 0.001;
+
 pub struct Camera {
-    position: Vec3,
+    pub position: Vec3,
     viewport: Viewport,
     target: Image,
     pub samples: u32,
+    pub max_bounces: u32,
 }
 
 impl Camera {
@@ -23,7 +26,6 @@ impl Camera {
         focal_length: f64,
         viewport_height: f64,
         target: Image,
-        samples: u32,
     ) -> Self {
         let viewport = Viewport::with_center(
             position + focal_length * forward,
@@ -37,7 +39,8 @@ impl Camera {
             position,
             viewport,
             target,
-            samples,
+            samples: 4,
+            max_bounces: 50,
         }
     }
 
@@ -51,7 +54,7 @@ impl Camera {
                 let sample = self.viewport.pixel_sample(i);
                 let ray = Ray::look_at(self.position, sample);
 
-                color += Camera::ray_color(scene, ray);
+                color += self.ray_color(scene, ray, 0);
             }
             color /= self.samples as f64;
 
@@ -70,12 +73,19 @@ impl Camera {
         result
     }
 
-    fn ray_color(scene: &Scene, ray: Ray) -> Color {
-        if let Some(hit) = scene.hit(&ray, 0.0..f64::INFINITY) {
-            0.5 * Color::new(
-                hit.normal.x() + 1.0,
-                hit.normal.y() + 1.0,
-                hit.normal.z() + 1.0,
+    fn ray_color(&self, scene: &Scene, ray: Ray, bounces: u32) -> Color {
+        if bounces >= self.max_bounces {
+            return Color::black();
+        }
+
+        if let Some(hit) = scene.hit(&ray, BIAS..f64::INFINITY) {
+            0.5 * self.ray_color(
+                scene,
+                Ray {
+                    origin: hit.point,
+                    direction: Vec3::random_on_hemisphere(&hit.normal),
+                },
+                bounces + 1,
             )
         } else {
             Camera::background(ray)
@@ -108,7 +118,6 @@ mod tests {
             1.0,
             1.0,
             Image::with_aspect_ratio(1, 1.0, Color::black()),
-            1,
         );
 
         assert_approx_eq!(Vec3, camera.viewport.origin(), Vec3(-0.5, 0.5, -1.0));

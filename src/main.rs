@@ -16,7 +16,7 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let test_size = 400;
+    let test_size = 800;
     let image = Image::with_aspect_ratio(test_size, 16.0 / 9.0, Color::black());
     let scene = Scene {
         objects: vec![
@@ -30,15 +30,7 @@ fn main() {
             }),
         ],
     };
-    let mut camera = Camera::new(
-        Vec3::zero(),
-        Vec3::forward(),
-        Vec3::up(),
-        1.0,
-        1.0,
-        image,
-        10,
-    );
+    let mut camera = Camera::new(Vec3::zero(), Vec3::forward(), Vec3::up(), 1.0, 1.0, image);
 
     camera.render(&scene, "output/test.ppm").unwrap()
 }
