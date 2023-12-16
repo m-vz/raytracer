@@ -12,6 +12,7 @@ pub struct Camera {
     position: Vec3,
     viewport: Viewport,
     target: Image,
+    pub samples: u32,
 }
 
 impl Camera {
@@ -22,6 +23,7 @@ impl Camera {
         focal_length: f64,
         viewport_height: f64,
         target: Image,
+        samples: u32,
     ) -> Self {
         let viewport = Viewport::with_center(
             position + focal_length * forward,
@@ -35,15 +37,23 @@ impl Camera {
             position,
             viewport,
             target,
+            samples,
         }
     }
 
     pub fn render<P: AsRef<Path>>(&mut self, scene: &Scene, path: P) -> std::io::Result<()> {
-        for (i, pixel) in self.viewport.pixels().iter().enumerate() {
-            let ray = Ray::look_at(self.position, *pixel);
+        for i in 0..self.target.pixel_count() {
+            let mut color = Color::black();
 
-            self.target
-                .set_pixel_by_index(i, Camera::ray_color(scene, ray));
+            for _ in 0..self.samples {
+                let sample = self.viewport.pixel_sample(i);
+                let ray = Ray::look_at(self.position, sample);
+
+                color += Camera::ray_color(scene, ray);
+            }
+            color /= self.samples as f64;
+
+            self.target.set_pixel_by_index(i, color.clamped());
         }
 
         self.target.write_ppm(path)
@@ -87,6 +97,7 @@ mod tests {
             1.0,
             1.0,
             Image::with_aspect_ratio(1, 1.0, Color::black()),
+            1,
         );
 
         assert_approx_eq!(Vec3, camera.viewport.origin(), Vec3(-0.5, 0.5, -1.0));

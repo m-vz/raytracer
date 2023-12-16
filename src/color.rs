@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 use float_cmp::{ApproxEq, F64Margin};
@@ -36,6 +36,20 @@ impl Color {
 
     pub fn b(&self) -> f64 {
         self.0 .2
+    }
+
+    pub fn clamped(&self) -> Self {
+        Self(Vec3(
+            self.0 .0.clamp(0.0, 1.0),
+            self.0 .1.clamp(0.0, 1.0),
+            self.0 .2.clamp(0.0, 1.0),
+        ))
+    }
+
+    pub fn clamp(&mut self) {
+        self.0 .0 = self.0 .0.clamp(0.0, 1.0);
+        self.0 .1 = self.0 .1.clamp(0.0, 1.0);
+        self.0 .2 = self.0 .2.clamp(0.0, 1.0);
     }
 }
 
@@ -186,46 +200,55 @@ mod tests {
     }
 
     #[test]
-    fn addition() {
-        let mut v1 = Color::new(1.0, 0.5, 0.1);
-        let v2 = Color::new(0.5, 1.0, 0.1);
+    fn clamping() {
+        let mut c1 = Color::new(1.5, -0.7, 0.4);
 
-        assert_approx_eq!(Color, v1 + v2, Color::new(1.5, 1.5, 0.2));
-        v1 += v2;
-        assert_approx_eq!(Color, v1, Color::new(1.5, 1.5, 0.2));
+        assert_approx_eq!(Color, c1.clamped(), Color::new(1.0, 0.0, 0.4));
+        c1.clamp();
+        assert_approx_eq!(Color, c1, Color::new(1.0, 0.0, 0.4));
+    }
+
+    #[test]
+    fn addition() {
+        let mut c1 = Color::new(1.0, 0.5, 0.1);
+        let c2 = Color::new(0.5, 1.0, 0.1);
+
+        assert_approx_eq!(Color, c1 + c2, Color::new(1.5, 1.5, 0.2));
+        c1 += c2;
+        assert_approx_eq!(Color, c1, Color::new(1.5, 1.5, 0.2));
     }
 
     #[test]
     fn subtraction() {
-        let mut v1 = Color::new(0.5, 1.0, 0.1);
-        let v2 = Color::new(1.0, 0.5, 0.1);
+        let mut c1 = Color::new(0.5, 1.0, 0.1);
+        let c2 = Color::new(1.0, 0.5, 0.1);
 
-        assert_approx_eq!(Color, v1 - v2, Color::new(-0.5, 0.5, 0.0));
-        v1 -= v2;
-        assert_approx_eq!(Color, v1, Color::new(-0.5, 0.5, 0.0));
+        assert_approx_eq!(Color, c1 - c2, Color::new(-0.5, 0.5, 0.0));
+        c1 -= c2;
+        assert_approx_eq!(Color, c1, Color::new(-0.5, 0.5, 0.0));
     }
 
     #[test]
     fn multiplication() {
-        let mut v1 = Color::new(1.0, 0.5, 0.1);
-        let v2 = Color::new(0.5, 1.0, 0.1);
+        let mut c1 = Color::new(1.0, 0.5, 0.1);
+        let c2 = Color::new(0.5, 1.0, 0.1);
         let t = 2.0;
 
-        assert_approx_eq!(Color, v1 * v2, Color::new(0.5, 0.5, 0.01));
-        v1 *= v2;
-        assert_approx_eq!(Color, v1, Color::new(0.5, 0.5, 0.01));
-        assert_approx_eq!(Color, v1 * t, Color::new(1.0, 1.0, 0.02));
-        v1 *= t;
-        assert_approx_eq!(Color, v1, Color::new(1.0, 1.0, 0.02));
+        assert_approx_eq!(Color, c1 * c2, Color::new(0.5, 0.5, 0.01));
+        c1 *= c2;
+        assert_approx_eq!(Color, c1, Color::new(0.5, 0.5, 0.01));
+        assert_approx_eq!(Color, c1 * t, Color::new(1.0, 1.0, 0.02));
+        c1 *= t;
+        assert_approx_eq!(Color, c1, Color::new(1.0, 1.0, 0.02));
     }
 
     #[test]
     fn division() {
-        let mut v1 = Color::new(1.0, 0.5, 0.1);
+        let mut c1 = Color::new(1.0, 0.5, 0.1);
         let t = 2.0;
 
-        assert_approx_eq!(Color, v1 / t, Color::new(0.5, 0.25, 0.05));
-        v1 /= t;
-        assert_approx_eq!(Color, v1, Color::new(0.5, 0.25, 0.05));
+        assert_approx_eq!(Color, c1 / t, Color::new(0.5, 0.25, 0.05));
+        c1 /= t;
+        assert_approx_eq!(Color, c1, Color::new(0.5, 0.25, 0.05));
     }
 }

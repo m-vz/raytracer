@@ -37,6 +37,10 @@ impl Image {
         self.height
     }
 
+    pub fn pixel_count(&self) -> usize {
+        self.data.len()
+    }
+
     pub fn resolution(&self) -> (u32, u32) {
         (self.width, self.height)
     }

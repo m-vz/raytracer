@@ -30,7 +30,15 @@ fn main() {
             }),
         ],
     };
-    let mut camera = Camera::new(Vec3::zero(), Vec3::forward(), Vec3::up(), 1.0, 1.0, image);
+    let mut camera = Camera::new(
+        Vec3::zero(),
+        Vec3::forward(),
+        Vec3::up(),
+        1.0,
+        1.0,
+        image,
+        10,
+    );
 
     camera.render(&scene, "output/test.ppm").unwrap()
 }

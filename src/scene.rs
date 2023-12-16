@@ -13,7 +13,7 @@ impl Hit for Scene {
 
         for object in &self.objects {
             if let Some(hit) = object.hit(
-                &ray,
+                ray,
                 t_range.start..if let Some(hit) = &closest_hit {
                     hit.t
                 } else {

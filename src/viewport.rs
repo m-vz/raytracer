@@ -1,3 +1,5 @@
+use rand::random;
+
 use crate::vec::Vec3;
 
 pub struct Viewport {
@@ -76,6 +78,19 @@ impl Viewport {
 
     pub fn pixel(&self, i: usize) -> Vec3 {
         self.pixels[i]
+    }
+
+    /// Create a sample pixel location within the square of the pixel at a given index.
+    ///
+    /// # Arguments
+    ///
+    /// * `i`: The index of the pixel to generate a sample for.
+    ///
+    /// returns: The location of the sample pixel.
+    pub fn pixel_sample(&self, i: usize) -> Vec3 {
+        self.pixel(i)
+            + self.pixel_size.0 * (random::<f64>() - 0.5)
+            + self.pixel_size.1 * (random::<f64>() - 0.5)
     }
 
     pub fn pixels(&self) -> &Vec<Vec3> {
