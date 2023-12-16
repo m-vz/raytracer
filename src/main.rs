@@ -36,7 +36,8 @@ fn main() {
                 center: Vec3(-0.4, 0.1, -1.0),
                 radius: 0.4,
                 material: Rc::new(Metal {
-                    albedo: Color::new(0.8, 0.8, 0.8),
+                    albedo: Color::new(0.8, 0.6, 0.2),
+                    fuzz: 0.3,
                 }),
             }),
             Box::new(Sphere {
@@ -51,12 +52,12 @@ fn main() {
                 radius: 0.3,
                 material: Rc::new(Metal {
                     albedo: Color::new(0.8, 0.8, 0.8),
+                    fuzz: 0.05,
                 }),
             }),
         ],
     };
     let mut camera = Camera::new(Vec3::zero(), Vec3::forward(), Vec3::up(), 1.0, 1.0, image);
-    // camera.samples = 1;
 
     camera.render(&scene, "output/test.ppm").unwrap()
 }
