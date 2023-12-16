@@ -1,8 +1,12 @@
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
-pub trait Hit {
-    fn hit(&self, ray: &Ray) -> f64;
+pub struct HitResult {
+    pub t: f64,
+    pub point: Vec3,
+    pub normal: Vec3,
+}
 
-    fn normal(&self, point: &Vec3) -> Vec3;
+pub trait Hit {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitResult>;
 }
