@@ -10,15 +10,15 @@ pub struct Sphere {
 impl Hit for Sphere {
     fn hit(&self, ray: &Ray) -> f64 {
         let oc = ray.origin - self.center;
-        let a = ray.direction.dot(&ray.direction);
-        let b = 2.0 * oc.dot(&ray.direction);
-        let c = oc.dot(&oc) - self.radius * self.radius;
-        let discriminant = b * b - 4.0 * a * c;
+        let a = ray.direction.len_sq();
+        let half_b = oc.dot(&ray.direction);
+        let c = oc.len_sq() - self.radius.powi(2);
+        let discriminant = half_b.powi(2) - a * c;
 
         if discriminant < 0.0 {
             -1.0
         } else {
-            (-b - discriminant.sqrt()) / (2.0 * a)
+            (-half_b - discriminant.sqrt()) / a
         }
     }
 
