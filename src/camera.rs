@@ -42,6 +42,8 @@ impl Camera {
     }
 
     pub fn render<P: AsRef<Path>>(&mut self, scene: &Scene, path: P) -> std::io::Result<()> {
+        println!("starting render...");
+
         for i in 0..self.target.pixel_count() {
             let mut color = Color::black();
 
@@ -54,9 +56,18 @@ impl Camera {
             color /= self.samples as f64;
 
             self.target.set_pixel_by_index(i, color.clamped());
+
+            print!(
+                "\rprogress: {:.2}%",
+                i as f64 * 100.0 / self.target.pixel_count() as f64
+            );
         }
 
-        self.target.write_ppm(path)
+        println!("\nwriting file...");
+        let result = self.target.write_ppm(path);
+
+        println!("\ndone");
+        result
     }
 
     fn ray_color(scene: &Scene, ray: Ray) -> Color {
