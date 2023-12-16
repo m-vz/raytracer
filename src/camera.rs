@@ -39,7 +39,7 @@ impl Camera {
             position,
             viewport,
             target,
-            samples: 4,
+            samples: 10,
             max_bounces: 50,
         }
     }
@@ -83,7 +83,7 @@ impl Camera {
                 scene,
                 Ray {
                     origin: hit.point,
-                    direction: Vec3::random_on_hemisphere(&hit.normal),
+                    direction: hit.normal + Vec3::random_unit_vector(),
                 },
                 bounces + 1,
             )
