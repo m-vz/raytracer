@@ -51,6 +51,10 @@ impl Color {
         self.0 .1 = self.0 .1.clamp(0.0, 1.0);
         self.0 .2 = self.0 .2.clamp(0.0, 1.0);
     }
+
+    pub fn to_gamma_space(self) -> Self {
+        Self(Vec3(self.0 .0.sqrt(), self.0 .1.sqrt(), self.0 .2.sqrt()))
+    }
 }
 
 impl Add for Color {

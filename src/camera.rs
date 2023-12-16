@@ -58,7 +58,8 @@ impl Camera {
             }
             color /= self.samples as f64;
 
-            self.target.set_pixel_by_index(i, color.clamped());
+            self.target
+                .set_pixel_by_index(i, color.clamped().to_gamma_space());
 
             print!(
                 "\rprogress: {:.2}%",
