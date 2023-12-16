@@ -107,6 +107,10 @@ impl Vec3 {
         )
     }
 
+    pub fn look_at(&self, rhs: &Self) -> Self {
+        *rhs - *self
+    }
+
     pub fn reflect(&self, normal: &Self) -> Self {
         *self - 2.0 * self.dot(normal) * *normal
     }

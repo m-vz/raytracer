@@ -10,7 +10,7 @@ impl Ray {
     pub fn look_at(origin: Vec3, target: Vec3) -> Self {
         Self {
             origin,
-            direction: target - origin,
+            direction: origin.look_at(&target),
         }
     }
 

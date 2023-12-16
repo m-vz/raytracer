@@ -3,6 +3,7 @@ use std::path::Path;
 use crate::color::Color;
 use crate::hit::Hit;
 use crate::image::Image;
+use crate::math;
 use crate::ray::Ray;
 use crate::scene::Scene;
 use crate::vec::Vec3;
@@ -24,15 +25,21 @@ impl Camera {
         forward: Vec3,
         up: Vec3,
         focal_length: f64,
-        viewport_height: f64,
+        fov: f64,
         target: Image,
     ) -> Self {
+        let theta = math::deg_to_rad(fov);
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
+        let direction = forward.normalized();
+        let right = direction.cross(&up);
+        let down = direction.cross(&right);
         let viewport = Viewport::with_center(
             position + focal_length * forward,
             (viewport_height * target.aspect(), viewport_height),
             target.resolution(),
-            forward.cross(&up),
-            -up,
+            right,
+            down,
         );
 
         Self {
@@ -114,12 +121,12 @@ mod tests {
             Vec3(0.0, 0.0, -1.0),
             Vec3(0.0, 1.0, 0.0),
             1.0,
-            1.0,
+            90.0,
             Image::with_aspect_ratio(1, 1.0, Color::black()),
         );
 
-        assert_approx_eq!(Vec3, camera.viewport.origin(), Vec3(-0.5, 0.5, -1.0));
-        assert_approx_eq!(f64, camera.viewport.width(), 1.0);
+        assert_approx_eq!(Vec3, camera.viewport.origin(), Vec3(-1.0, 1.0, -1.0));
+        assert_approx_eq!(f64, camera.viewport.width(), 2.0);
         assert_approx_eq!(
             Vec3,
             camera.viewport.edges().0.normalized(),
