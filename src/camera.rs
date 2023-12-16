@@ -49,9 +49,14 @@ impl Camera {
     }
 
     fn ray_color(scene: &Scene, ray: Ray) -> Color {
+        let mut t;
+
         for object in &scene.objects {
-            if object.hit(&ray) {
-                return Color::new(1.0, 0.0, 0.0);
+            t = object.hit(&ray);
+            if t > 0.0 {
+                let normal = object.normal(&ray.at(t));
+
+                return 0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0);
             }
         }
 
