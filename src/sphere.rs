@@ -20,19 +20,20 @@ impl Hit for Sphere {
         }
 
         let discriminant_sq = discriminant.sqrt();
-        let mut root = (-half_b - discriminant_sq) / a;
-        if root <= t_min || root >= t_max {
-            root = (-half_b + discriminant_sq) / a;
-            if root <= t_min || root >= t_max {
+        let mut t = (-half_b - discriminant_sq) / a;
+        if t <= t_min || t >= t_max {
+            t = (-half_b + discriminant_sq) / a;
+            if t <= t_min || t >= t_max {
                 return None;
             }
         }
 
-        let point = ray.at(root);
-        Some(HitResult {
-            t: root,
+        let point = ray.at(t);
+        Some(HitResult::new(
+            ray,
+            t,
             point,
-            normal: (point - self.center) / self.radius,
-        })
+            (point - self.center) / self.radius,
+        ))
     }
 }
