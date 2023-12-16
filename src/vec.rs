@@ -106,6 +106,10 @@ impl Vec3 {
             self.0 * rhs.1 - self.1 * rhs.0,
         )
     }
+
+    pub fn reflect(&self, normal: &Self) -> Self {
+        *self - 2.0 * self.dot(normal) * *normal
+    }
 }
 
 impl Add for Vec3 {

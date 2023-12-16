@@ -4,6 +4,7 @@ use crate::camera::Camera;
 use crate::color::Color;
 use crate::image::Image;
 use crate::material::lambertian::Lambertian;
+use crate::material::metal::Metal;
 use crate::scene::Scene;
 use crate::sphere::Sphere;
 use crate::vec::Vec3;
@@ -25,22 +26,37 @@ fn main() {
     let scene = Scene {
         objects: vec![
             Box::new(Sphere {
-                center: Vec3(0.0, -1000.25, -1.0),
+                center: Vec3(0.0, -1000.3, -1.0),
                 radius: 1000.0,
                 material: Rc::new(Lambertian {
                     albedo: Color::new(0.5, 0.5, 0.5),
                 }),
             }),
             Box::new(Sphere {
-                center: Vec3(0.0, 0.0, -1.0),
-                radius: 0.25,
+                center: Vec3(-0.4, 0.1, -1.0),
+                radius: 0.4,
+                material: Rc::new(Metal {
+                    albedo: Color::new(0.8, 0.8, 0.8),
+                }),
+            }),
+            Box::new(Sphere {
+                center: Vec3(0.0, 0.0, -1.5),
+                radius: 0.3,
                 material: Rc::new(Lambertian {
                     albedo: Color::new(1.0, 0.0, 0.0),
+                }),
+            }),
+            Box::new(Sphere {
+                center: Vec3(0.5, 0.0, -1.0),
+                radius: 0.3,
+                material: Rc::new(Metal {
+                    albedo: Color::new(0.8, 0.8, 0.8),
                 }),
             }),
         ],
     };
     let mut camera = Camera::new(Vec3::zero(), Vec3::forward(), Vec3::up(), 1.0, 1.0, image);
+    // camera.samples = 1;
 
     camera.render(&scene, "output/test.ppm").unwrap()
 }

@@ -3,6 +3,7 @@ use crate::hit::HitResult;
 use crate::ray::Ray;
 
 pub mod lambertian;
+pub mod metal;
 
 pub trait Material {
     /// Scatter an incoming ray and produce an outgoing ray and attenuation
