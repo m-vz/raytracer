@@ -1,7 +1,8 @@
-use std::ops::Range;
 use std::rc::Rc;
 
 use crate::material::Material;
+use crate::math::aabb::Aabb;
+use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
@@ -38,5 +39,7 @@ impl HitResult {
 }
 
 pub trait Hit {
-    fn hit(&self, ray: &Ray, t_range: Range<f64>) -> Option<HitResult>;
+    fn hit(&self, ray: &Ray, t_interval: Interval) -> Option<HitResult>;
+
+    fn bounding_box(&self) -> &Aabb;
 }

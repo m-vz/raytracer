@@ -6,6 +6,7 @@ use crate::color::Color;
 use crate::hit::Hit;
 use crate::image::Image;
 use crate::math;
+use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::scene::Scene;
 use crate::vec::Vec3;
@@ -70,8 +71,8 @@ impl Camera {
                 let defocus_sample = Vec3::random_in_unit_disk();
                 let ray = Ray::look_at(
                     self.position
-                        + defocus_sample.x() * self.defocus_disk.0
-                        + defocus_sample.y() * self.defocus_disk.1,
+                        + defocus_sample.0 * self.defocus_disk.0
+                        + defocus_sample.1 * self.defocus_disk.1,
                     sample,
                     random(),
                 );
@@ -101,7 +102,7 @@ impl Camera {
             return Color::black();
         }
 
-        if let Some(hit) = scene.hit(&ray, BIAS..f64::INFINITY) {
+        if let Some(hit) = scene.hit(&ray, Interval(BIAS..f64::INFINITY)) {
             if let Some((scattered, attenuation)) = hit.material.scatter(&ray, &hit) {
                 attenuation * self.ray_color(scene, scattered, bounces + 1)
             } else {
@@ -113,7 +114,7 @@ impl Camera {
     }
 
     fn background(ray: Ray) -> Color {
-        let a = 0.5 * (ray.normalized().direction.y() + 1.0);
+        let a = 0.5 * (ray.normalized().direction.1 + 1.0);
 
         (1.0 - a) * Color::white() + a * Color::new(0.5, 0.7, 1.0)
     }

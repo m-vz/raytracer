@@ -78,16 +78,13 @@ impl Vec3 {
         Self(self.0, self.1, self.2)
     }
 
-    pub fn x(&self) -> f64 {
-        self.0
-    }
-
-    pub fn y(&self) -> f64 {
-        self.1
-    }
-
-    pub fn z(&self) -> f64 {
-        self.2
+    pub fn axis(&self, n: u32) -> f64 {
+        match n {
+            0 => self.0,
+            1 => self.1,
+            2 => self.2,
+            _ => panic!("Invalid axis"),
+        }
     }
 
     pub fn len(&self) -> f64 {

@@ -1,29 +1,64 @@
-use std::ops::Range;
-
 use crate::hit::{Hit, HitResult};
+use crate::math::aabb::Aabb;
+use crate::math::interval::Interval;
 use crate::ray::Ray;
+
+pub struct SceneBuilder {
+    objects: Vec<Box<dyn Hit>>,
+    bounding_box: Aabb,
+}
+
+impl SceneBuilder {
+    pub fn new() -> Self {
+        Self {
+            objects: Vec::new(),
+            bounding_box: Aabb::default(),
+        }
+    }
+
+    pub fn add(mut self, object: impl Hit + 'static) -> Self {
+        self.bounding_box.combine(object.bounding_box());
+        self.objects.push(Box::new(object));
+
+        self
+    }
+
+    pub fn build(self) -> Scene {
+        Scene {
+            objects: self.objects,
+            bounding_box: self.bounding_box,
+        }
+    }
+}
 
 pub struct Scene {
     pub objects: Vec<Box<dyn Hit>>,
+    bounding_box: Aabb,
 }
 
 impl Hit for Scene {
-    fn hit(&self, ray: &Ray, t_range: Range<f64>) -> Option<HitResult> {
+    fn hit(&self, ray: &Ray, t_interval: Interval) -> Option<HitResult> {
         let mut closest_hit: Option<HitResult> = None;
 
         for object in &self.objects {
             if let Some(hit) = object.hit(
                 ray,
-                t_range.start..if let Some(hit) = &closest_hit {
-                    hit.t
-                } else {
-                    t_range.end
-                },
+                Interval(
+                    t_interval.start()..if let Some(hit) = &closest_hit {
+                        hit.t
+                    } else {
+                        t_interval.end()
+                    },
+                ),
             ) {
                 closest_hit = Some(hit);
             }
         }
 
         closest_hit
+    }
+
+    fn bounding_box(&self) -> &Aabb {
+        &self.bounding_box
     }
 }
