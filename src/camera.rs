@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::time::Instant;
 
 use rand::random;
 
@@ -8,7 +9,6 @@ use crate::image::Image;
 use crate::math;
 use crate::math::interval::Interval;
 use crate::ray::Ray;
-use crate::scene::Scene;
 use crate::vec::Vec3;
 use crate::viewport::Viewport;
 
@@ -60,8 +60,9 @@ impl Camera {
         }
     }
 
-    pub fn render<P: AsRef<Path>>(&mut self, scene: &Scene, path: P) -> std::io::Result<()> {
+    pub fn render<P: AsRef<Path>>(&mut self, root: &impl Hit, path: P) -> std::io::Result<()> {
         println!("starting render...");
+        let t = Instant::now();
 
         for i in 0..self.target.pixel_count() {
             let mut color = Color::black();
@@ -77,7 +78,7 @@ impl Camera {
                     random(),
                 );
 
-                color += self.ray_color(scene, ray, 0);
+                color += self.ray_color(root, ray, 0);
             }
             color /= self.samples as f64;
 
@@ -93,18 +94,18 @@ impl Camera {
         println!("\nwriting file...");
         let result = self.target.write_ppm(path);
 
-        println!("\ndone");
+        println!("\ndone in {}ms", t.elapsed().as_millis());
         result
     }
 
-    fn ray_color(&self, scene: &Scene, ray: Ray, bounces: u32) -> Color {
+    fn ray_color(&self, root: &impl Hit, ray: Ray, bounces: u32) -> Color {
         if bounces >= self.max_bounces {
             return Color::black();
         }
 
-        if let Some(hit) = scene.hit(&ray, Interval(BIAS..f64::INFINITY)) {
+        if let Some(hit) = root.hit(&ray, Interval(BIAS..f64::INFINITY)) {
             if let Some((scattered, attenuation)) = hit.material.scatter(&ray, &hit) {
-                attenuation * self.ray_color(scene, scattered, bounces + 1)
+                attenuation * self.ray_color(root, scattered, bounces + 1)
             } else {
                 Color::black()
             }
