@@ -81,13 +81,6 @@ mod tests {
 
         assert_approx_eq!(Vec3, viewport.edges.0, Vec3(2.0, 0.0, 0.0));
         assert_approx_eq!(Vec3, viewport.edges.1, Vec3(0.0, -1.0, 0.0));
-        assert_eq!(viewport.pixels.len(), 100);
-        assert_approx_eq!(Vec3, viewport.pixels[0], Vec3(-1.0 + 0.1, 0.5 - 0.05, -1.0));
-        assert_approx_eq!(
-            Vec3,
-            viewport.pixels[11],
-            Vec3(-1.0 + 0.3, 0.5 - 0.15, -1.0)
-        );
         assert_approx_eq!(Vec3, viewport.pixel_size.0, Vec3(0.2, 0.0, 0.0));
         assert_approx_eq!(Vec3, viewport.pixel_size.1, Vec3(0.0, -0.1, 0.0));
     }

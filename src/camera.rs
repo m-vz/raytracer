@@ -1,8 +1,6 @@
 use std::path::Path;
 use std::time::Instant;
 
-use rand::random;
-
 use crate::color::Color;
 use crate::hit::Hit;
 use crate::image::Image;
@@ -76,7 +74,7 @@ impl Camera {
                             + defocus_sample.0 * self.defocus_disk.0
                             + defocus_sample.1 * self.defocus_disk.1,
                         sample,
-                        random(),
+                        rand::random(),
                     );
 
                     color += self.ray_color(root, ray, 0);
@@ -145,16 +143,16 @@ mod tests {
             Image::with_aspect_ratio(1, 1.0, Color::black()),
         );
 
-        assert_approx_eq!(Vec3, camera.viewport.origin(), Vec3(-1.0, 1.0, -1.0));
-        assert_approx_eq!(f64, camera.viewport.width(), 2.0);
+        assert_approx_eq!(Vec3, camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));
+        assert_approx_eq!(f64, camera.viewport.width, 2.0);
         assert_approx_eq!(
             Vec3,
-            camera.viewport.edges().0.normalized(),
+            camera.viewport.edges.0.normalized(),
             Vec3(1.0, 0.0, 0.0)
         );
         assert_approx_eq!(
             Vec3,
-            camera.viewport.edges().1.normalized(),
+            camera.viewport.edges.1.normalized(),
             Vec3(0.0, -1.0, 0.0)
         );
     }

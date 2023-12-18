@@ -2,7 +2,6 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
 use float_cmp::{ApproxEq, F64Margin};
-use rand::random;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3(pub f64, pub f64, pub f64);
@@ -30,16 +29,16 @@ impl Vec3 {
     }
 
     pub fn random() -> Self {
-        Self(random(), random(), random())
+        Self(rand::random(), rand::random(), rand::random())
     }
 
     pub fn random_in_range(range: Range<f64>) -> Self {
         let scale = range.end - range.start;
 
         Self(
-            range.start + scale * random::<f64>(),
-            range.start + scale * random::<f64>(),
-            range.start + scale * random::<f64>(),
+            range.start + scale * rand::random::<f64>(),
+            range.start + scale * rand::random::<f64>(),
+            range.start + scale * rand::random::<f64>(),
         )
     }
 

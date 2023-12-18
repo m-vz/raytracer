@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::rc::Rc;
 
-use rand::{Rng, thread_rng};
+use rand::Rng;
 
 use crate::hit::{Hit, HitResult};
 use crate::math::aabb::Aabb;
@@ -16,7 +16,7 @@ pub struct BvhNode {
 
 impl BvhNode {
     pub fn new(mut objects: Vec<Rc<dyn Hit>>) -> BvhNode {
-        let axis = thread_rng().gen_range(0..3);
+        let axis = rand::thread_rng().gen_range(0..3);
         let comparator = match axis {
             0 => BvhNode::box_compare_x,
             1 => BvhNode::box_compare_y,
