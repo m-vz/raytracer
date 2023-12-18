@@ -64,31 +64,33 @@ impl Camera {
         println!("starting render...");
         let t = Instant::now();
 
-        for i in 0..self.target.pixel_count() {
-            let mut color = Color::black();
+        for y in 0..self.target.height() {
+            for x in 0..self.target.width() {
+                let mut color = Color::black();
 
-            for _ in 0..self.samples {
-                let sample = self.viewport.pixel_sample(i);
-                let defocus_sample = Vec3::random_in_unit_disk();
-                let ray = Ray::look_at(
-                    self.position
-                        + defocus_sample.0 * self.defocus_disk.0
-                        + defocus_sample.1 * self.defocus_disk.1,
-                    sample,
-                    random(),
+                for _ in 0..self.samples {
+                    let sample = self.viewport.pixel_sample(x, y);
+                    let defocus_sample = Vec3::random_in_unit_disk();
+                    let ray = Ray::look_at(
+                        self.position
+                            + defocus_sample.0 * self.defocus_disk.0
+                            + defocus_sample.1 * self.defocus_disk.1,
+                        sample,
+                        random(),
+                    );
+
+                    color += self.ray_color(root, ray, 0);
+                }
+                color /= self.samples as f64;
+
+                self.target
+                    .set_pixel(x, y, color.clamped().to_gamma_space());
+
+                print!(
+                    "\rprogress: {:.2}%",
+                    (y * self.target.width() + x) as f64 * 100.0 / self.target.pixel_count() as f64
                 );
-
-                color += self.ray_color(root, ray, 0);
             }
-            color /= self.samples as f64;
-
-            self.target
-                .set_pixel_by_index(i, color.clamped().to_gamma_space());
-
-            print!(
-                "\rprogress: {:.2}%",
-                i as f64 * 100.0 / self.target.pixel_count() as f64
-            );
         }
 
         println!("\nwriting file...");

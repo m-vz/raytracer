@@ -53,10 +53,6 @@ impl Image {
         self.data[(y * self.width + x) as usize] = value;
     }
 
-    pub fn set_pixel_by_index(&mut self, i: usize, value: Color) {
-        self.data[i] = value;
-    }
-
     pub fn get_pixel(&self, x: u32, y: u32) -> Color {
         self.data[(y * self.width + x) as usize]
     }
