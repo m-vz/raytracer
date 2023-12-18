@@ -53,7 +53,7 @@ impl Camera {
             viewport,
             defocus_disk: (right * defocus_radius, up * defocus_radius),
             target,
-            samples: 10,
+            samples: 9,
             max_bounces: 50,
         }
     }
@@ -62,22 +62,29 @@ impl Camera {
         println!("starting render...");
         let t = Instant::now();
 
+        let samples_sqrt = (self.samples as f64).sqrt() as u32;
+        let subpixel_scale = 1.0 / samples_sqrt as f64;
+
         for y in 0..self.target.height() {
             for x in 0..self.target.width() {
                 let mut color = Color::black();
 
-                for _ in 0..self.samples {
-                    let sample = self.viewport.pixel_sample(x, y);
-                    let defocus_sample = Vec3::random_in_unit_disk();
-                    let ray = Ray::look_at(
-                        self.position
-                            + defocus_sample.0 * self.defocus_disk.0
-                            + defocus_sample.1 * self.defocus_disk.1,
-                        sample,
-                        rand::random(),
-                    );
+                for sample_y in 0..samples_sqrt {
+                    for sample_x in 0..samples_sqrt {
+                        let sample =
+                            self.viewport
+                                .pixel_sample(x, y, sample_x, sample_y, subpixel_scale);
+                        let defocus_sample = Vec3::random_in_unit_disk();
+                        let ray = Ray::look_at(
+                            self.position
+                                + defocus_sample.0 * self.defocus_disk.0
+                                + defocus_sample.1 * self.defocus_disk.1,
+                            sample,
+                            rand::random(),
+                        );
 
-                    color += self.ray_color(root, ray, 0);
+                        color += self.ray_color(root, ray, 0);
+                    }
                 }
                 color /= self.samples as f64;
 

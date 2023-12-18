@@ -79,7 +79,6 @@ fn main() {
         50.0,
         image,
     );
-    camera.samples = 10;
 
     camera.render(&root, "output/test.ppm").unwrap();
 }

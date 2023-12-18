@@ -1,5 +1,3 @@
-use rand::{thread_rng, Rng};
-
 use crate::vec::Vec3;
 
 pub struct Viewport {
@@ -11,8 +9,6 @@ pub struct Viewport {
     pub origin: Vec3,
     /// Vectors pointing along the horizontal and vertical axes of the viewport.
     pub edges: (Vec3, Vec3),
-    /// Location of the first pixel on the viewport.
-    pub pixel_origin: Vec3,
     /// Vectors pointing from a pixel to the neighbour to its right and below it.
     pixel_size: (Vec3, Vec3),
 }
@@ -45,15 +41,23 @@ impl Viewport {
             height: size.1,
             origin,
             edges: (size.0 * right, size.1 * down),
-            pixel_origin: origin + 0.5 * (pixel_size.0 + pixel_size.1),
-            pixel_size,
+            pixel_size: (pixel_size.0 * right, pixel_size.1 * down),
         }
     }
 
-    pub fn pixel_sample(&self, x: u32, y: u32) -> Vec3 {
-        self.pixel_origin
-            + self.pixel_size.0 * (x as f64 + thread_rng().gen_range(-0.5..0.5))
-            + self.pixel_size.1 * (y as f64 + thread_rng().gen_range(-0.5..0.5))
+    pub fn pixel_sample(
+        &self,
+        x: u32,
+        y: u32,
+        sample_x: u32,
+        sample_y: u32,
+        subpixel_scale: f64,
+    ) -> Vec3 {
+        self.origin
+            + self.pixel_size.0
+                * (x as f64 + subpixel_scale * (sample_x as f64 + rand::random::<f64>()))
+            + self.pixel_size.1
+                * (y as f64 + subpixel_scale * (sample_y as f64 + rand::random::<f64>()))
     }
 
     pub fn pixel_size(&self) -> (Vec3, Vec3) {
