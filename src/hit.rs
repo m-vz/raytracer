@@ -8,6 +8,8 @@ use crate::vec::Vec3;
 
 pub struct HitResult {
     pub t: f64,
+    pub u: f64,
+    pub v: f64,
     pub point: Vec3,
     pub normal: Vec3,
     pub material: Arc<dyn Material>,
@@ -18,6 +20,8 @@ impl HitResult {
     pub fn new(
         ray: &Ray,
         t: f64,
+        u: f64,
+        v: f64,
         point: Vec3,
         outward_normal: Vec3,
         material: Arc<dyn Material>,
@@ -26,6 +30,8 @@ impl HitResult {
 
         Self {
             t,
+            u,
+            v,
             point,
             normal: if front_face {
                 outward_normal

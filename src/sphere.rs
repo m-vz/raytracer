@@ -98,6 +98,8 @@ impl Hit for Sphere {
         Some(HitResult::new(
             ray,
             t,
+            0.0, // TODO: get u and v
+            0.0,
             point,
             (point - center) / self.radius,
             self.material.clone(),

@@ -1,13 +1,16 @@
+use std::sync::Arc;
+
 use float_cmp::{ApproxEq, F64Margin};
 
 use crate::color::Color;
 use crate::hit::HitResult;
 use crate::material::Material;
 use crate::ray::Ray;
+use crate::texture::Texture;
 use crate::vec::Vec3;
 
 pub struct Lambertian {
-    pub albedo: Color,
+    pub texture: Arc<dyn Texture>
 }
 
 impl Material for Lambertian {
@@ -24,7 +27,7 @@ impl Material for Lambertian {
                 direction,
                 time: ray.time,
             },
-            self.albedo,
+            self.texture.value(hit.u, hit.v, hit.point),
         ))
     }
 }

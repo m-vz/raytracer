@@ -8,6 +8,8 @@ use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
 use crate::material::metal::Metal;
 use crate::sphere::SphereBuilder;
+use crate::texture::checker::Checker;
+use crate::texture::solid_color::SolidColor;
 use crate::vec::Vec3;
 
 mod bvh;
@@ -20,6 +22,7 @@ mod math;
 mod ray;
 mod scene;
 mod sphere;
+mod texture;
 mod vec;
 mod viewport;
 
@@ -32,7 +35,11 @@ fn main() {
                 Vec3(0.0, -1000.3, 0.0),
                 1000.0,
                 Arc::new(Lambertian {
-                    albedo: Color::new(0.75, 0.75, 0.75),
+                    texture: Arc::new(Checker::new(
+                        0.25,
+                        Arc::new(SolidColor::black()),
+                        Arc::new(SolidColor::white()),
+                    )),
                 }),
             )
             .build(),
@@ -42,7 +49,7 @@ fn main() {
                 Vec3(0.0, 0.0, 0.5),
                 0.3,
                 Arc::new(Dielectric {
-                    refraction_index: 1.5,
+                    refraction_index: 1.458,
                 }),
             )
             .build(),
@@ -52,7 +59,7 @@ fn main() {
                 Vec3(-0.5, 0.0, -0.25),
                 0.3,
                 Arc::new(Lambertian {
-                    albedo: Color::new(0.9, 0.0, 0.0),
+                    texture: Arc::new(SolidColor(Color::new(0.9, 0.0, 0.0))),
                 }),
             )
             .build(),
