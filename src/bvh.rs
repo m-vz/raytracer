@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use rand::Rng;
 
@@ -9,13 +9,13 @@ use crate::math::interval::Interval;
 use crate::ray::Ray;
 
 pub struct BvhNode {
-    left: Rc<dyn Hit>,
-    right: Rc<dyn Hit>,
+    left: Arc<dyn Hit>,
+    right: Arc<dyn Hit>,
     bounding_box: Aabb,
 }
 
 impl BvhNode {
-    pub fn new(mut objects: Vec<Rc<dyn Hit>>) -> BvhNode {
+    pub fn new(mut objects: Vec<Arc<dyn Hit>>) -> BvhNode {
         let axis = rand::thread_rng().gen_range(0..3);
         let comparator = match axis {
             0 => BvhNode::box_compare_x,
@@ -46,8 +46,8 @@ impl BvhNode {
             _ => {
                 objects.sort_unstable_by(comparator);
 
-                right = Rc::new(BvhNode::new(objects.split_off(objects.len() / 2)));
-                left = Rc::new(BvhNode::new(objects));
+                right = Arc::new(BvhNode::new(objects.split_off(objects.len() / 2)));
+                left = Arc::new(BvhNode::new(objects));
             }
         }
 
@@ -58,22 +58,22 @@ impl BvhNode {
         }
     }
 
-    fn box_compare(a: &Rc<dyn Hit>, b: &Rc<dyn Hit>, axis: u32) -> Ordering {
+    fn box_compare(a: &Arc<dyn Hit>, b: &Arc<dyn Hit>, axis: u32) -> Ordering {
         a.bounding_box()
             .axis(axis)
             .start()
             .total_cmp(&b.bounding_box().axis(axis).start())
     }
 
-    fn box_compare_x(a: &Rc<dyn Hit>, b: &Rc<dyn Hit>) -> Ordering {
+    fn box_compare_x(a: &Arc<dyn Hit>, b: &Arc<dyn Hit>) -> Ordering {
         BvhNode::box_compare(a, b, 0)
     }
 
-    fn box_compare_y(a: &Rc<dyn Hit>, b: &Rc<dyn Hit>) -> Ordering {
+    fn box_compare_y(a: &Arc<dyn Hit>, b: &Arc<dyn Hit>) -> Ordering {
         BvhNode::box_compare(a, b, 1)
     }
 
-    fn box_compare_z(a: &Rc<dyn Hit>, b: &Rc<dyn Hit>) -> Ordering {
+    fn box_compare_z(a: &Arc<dyn Hit>, b: &Arc<dyn Hit>) -> Ordering {
         BvhNode::box_compare(a, b, 2)
     }
 }

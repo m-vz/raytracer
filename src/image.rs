@@ -4,6 +4,20 @@ use std::path::Path;
 
 use crate::color::Color;
 
+#[derive(Debug)]
+pub enum ImageError {
+    IOError(std::io::Error),
+    AveragingZeroImages,
+    DimensionsMismatch,
+}
+
+impl From<std::io::Error> for ImageError {
+    fn from(error: std::io::Error) -> Self {
+        Self::IOError(error)
+    }
+}
+
+#[derive(Clone)]
 pub struct Image {
     width: u32,
     height: u32,
@@ -27,6 +41,31 @@ impl Image {
             height,
             data: vec![color; (width * height) as usize],
         }
+    }
+
+    pub fn average(images: &Vec<Self>) -> Result<Self, ImageError> {
+        if images.is_empty() {
+            return Err(ImageError::AveragingZeroImages);
+        }
+        let pixel_count = images[0].data.len();
+        if images.iter().any(|image| image.data.len() != pixel_count) {
+            return Err(ImageError::DimensionsMismatch);
+        }
+
+        let mut data = vec![Color::black(); pixel_count];
+
+        data.iter_mut().enumerate().for_each(|(i, pixel)| {
+            for image in images {
+                *pixel += image.data[i]
+            }
+            *pixel /= images.len() as f64;
+        });
+
+        Ok(Self {
+            width: images[0].width,
+            height: images[0].height,
+            data,
+        })
     }
 
     pub fn width(&self) -> u32 {
@@ -57,7 +96,11 @@ impl Image {
         self.data[(y * self.width + x) as usize]
     }
 
-    pub fn write_ppm<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
+    pub fn write_ppm<P: AsRef<Path>>(
+        &self,
+        path: P,
+        to_gamma_space: bool,
+    ) -> Result<(), ImageError> {
         // create the directory and the file if they don't exist
         if let Some(directory) = path.as_ref().parent() {
             create_dir_all(directory)?;
@@ -71,7 +114,14 @@ impl Image {
         // write data
         for y in 0..self.height {
             for x in 0..self.width {
-                let pixel = format!("{}\n", self.get_pixel(x, y));
+                let pixel = format!(
+                    "{}\n",
+                    if to_gamma_space {
+                        self.get_pixel(x, y).to_gamma_space()
+                    } else {
+                        self.get_pixel(x, y)
+                    }
+                );
 
                 file.write_all(pixel.as_bytes())?;
             }

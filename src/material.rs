@@ -6,7 +6,7 @@ pub mod dielectric;
 pub mod lambertian;
 pub mod metal;
 
-pub trait Material {
+pub trait Material: Send + Sync {
     /// Scatter an incoming ray and produce an outgoing ray and attenuation
     ///
     /// # Arguments

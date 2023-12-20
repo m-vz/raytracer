@@ -1,9 +1,12 @@
+use std::io;
 use std::path::Path;
+use std::sync::Arc;
+use std::thread::spawn;
 use std::time::Instant;
 
 use crate::color::Color;
 use crate::hit::Hit;
-use crate::image::Image;
+use crate::image::{Image, ImageError};
 use crate::math;
 use crate::math::interval::Interval;
 use crate::ray::Ray;
@@ -12,6 +15,19 @@ use crate::viewport::Viewport;
 
 const BIAS: f64 = 0.001;
 
+#[derive(Debug)]
+pub enum CameraError {
+    IOError(io::Error),
+    Averaging(ImageError),
+}
+
+impl From<io::Error> for CameraError {
+    fn from(error: io::Error) -> Self {
+        Self::IOError(error)
+    }
+}
+
+#[derive(Clone)]
 pub struct Camera {
     pub position: Vec3,
     viewport: Viewport,
@@ -58,12 +74,55 @@ impl Camera {
         }
     }
 
-    pub fn render<P: AsRef<Path>>(&mut self, root: &impl Hit, path: P) -> std::io::Result<()> {
+    pub fn render_and_save<P: AsRef<Path>>(
+        &mut self,
+        root: Arc<dyn Hit>,
+        path: P,
+        num_threads: u32,
+    ) -> Result<(), CameraError> {
         println!("starting render...");
         let t = Instant::now();
 
-        let samples_sqrt = (self.samples as f64).sqrt() as u32;
+        let samples_per_thread_sqrt = (self.samples as f64 / num_threads as f64).sqrt() as u32;
+
+        if num_threads > 1 {
+            let mut threads = Vec::with_capacity(num_threads as usize);
+            for i in 0..num_threads {
+                let mut thread_camera = self.clone();
+                let thread_root = root.clone();
+
+                threads.push(spawn(move || {
+                    thread_camera.render(thread_root, samples_per_thread_sqrt, i == 0);
+                    thread_camera.target
+                }));
+            }
+
+            let mut images = Vec::with_capacity(num_threads as usize);
+            threads
+                .into_iter()
+                .for_each(|t| images.push(t.join().unwrap()));
+
+            println!("combining images...");
+            match Image::average(&images) {
+                Ok(average) => self.target = average,
+                Err(error) => return Err(CameraError::Averaging(error)),
+            }
+        } else {
+            self.render(root, samples_per_thread_sqrt, true);
+        }
+
+        println!("writing file...");
+        if let Err(ImageError::IOError(error)) = self.target.write_ppm(path, true) {
+            return Err(error.into());
+        }
+
+        println!("done in {}ms", t.elapsed().as_millis());
+        Ok(())
+    }
+
+    fn render(&mut self, root: Arc<dyn Hit>, samples_sqrt: u32, log: bool) {
         let subpixel_scale = 1.0 / samples_sqrt as f64;
+        let samples = samples_sqrt * samples_sqrt;
 
         for y in 0..self.target.height() {
             for x in 0..self.target.width() {
@@ -83,29 +142,28 @@ impl Camera {
                             rand::random(),
                         );
 
-                        color += self.ray_color(root, ray, 0);
+                        color += self.ray_color(root.clone(), ray, 0);
                     }
                 }
-                color /= self.samples as f64;
+                color /= samples as f64;
 
-                self.target
-                    .set_pixel(x, y, color.clamped().to_gamma_space());
+                self.target.set_pixel(x, y, color.clamped());
 
-                print!(
-                    "\rprogress: {:.2}%",
-                    (y * self.target.width() + x) as f64 * 100.0 / self.target.pixel_count() as f64
-                );
+                if log {
+                    print!(
+                        "\rprogress: {:.2}%",
+                        (y * self.target.width() + x) as f64 * 100.0
+                            / self.target.pixel_count() as f64
+                    );
+                }
             }
         }
-
-        println!("\nwriting file...");
-        let result = self.target.write_ppm(path);
-
-        println!("\ndone in {}ms", t.elapsed().as_millis());
-        result
+        if log {
+            println!();
+        }
     }
 
-    fn ray_color(&self, root: &impl Hit, ray: Ray, bounces: u32) -> Color {
+    fn ray_color(&self, root: Arc<dyn Hit>, ray: Ray, bounces: u32) -> Color {
         if bounces >= self.max_bounces {
             return Color::black();
         }

@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::material::Material;
 use crate::math::aabb::Aabb;
@@ -10,7 +10,7 @@ pub struct HitResult {
     pub t: f64,
     pub point: Vec3,
     pub normal: Vec3,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
     pub front_face: bool,
 }
 
@@ -20,7 +20,7 @@ impl HitResult {
         t: f64,
         point: Vec3,
         outward_normal: Vec3,
-        material: Rc<dyn Material>,
+        material: Arc<dyn Material>,
     ) -> Self {
         let front_face = ray.direction.dot(&outward_normal) < 0.0;
 
@@ -38,7 +38,7 @@ impl HitResult {
     }
 }
 
-pub trait Hit {
+pub trait Hit: Send + Sync {
     fn hit(&self, ray: &Ray, t_interval: Interval) -> Option<HitResult>;
 
     fn bounding_box(&self) -> &Aabb;

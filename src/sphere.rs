@@ -1,5 +1,5 @@
 use std::ops::RangeBounds;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::hit::{Hit, HitResult};
 use crate::material::Material;
@@ -12,12 +12,12 @@ pub struct SphereBuilder {
     pub center: Vec3,
     pub radius: f64,
     pub movement: Option<Vec3>,
-    material: Rc<dyn Material>,
+    material: Arc<dyn Material>,
 }
 
 #[allow(dead_code)]
 impl SphereBuilder {
-    pub fn new(center: Vec3, radius: f64, material: Rc<dyn Material>) -> Self {
+    pub fn new(center: Vec3, radius: f64, material: Arc<dyn Material>) -> Self {
         Self {
             center,
             radius,
@@ -58,7 +58,7 @@ pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
     pub movement: Option<Vec3>,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
     bounding_box: Aabb,
 }
 
@@ -100,7 +100,7 @@ impl Hit for Sphere {
             t,
             point,
             (point - center) / self.radius,
-            Rc::clone(&self.material),
+            self.material.clone(),
         ))
     }
 

@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::hit::{Hit, HitResult};
 use crate::math::aabb::Aabb;
@@ -6,7 +6,7 @@ use crate::math::interval::Interval;
 use crate::ray::Ray;
 
 pub struct SceneBuilder {
-    objects: Vec<Rc<dyn Hit>>,
+    objects: Vec<Arc<dyn Hit>>,
     bounding_box: Aabb,
 }
 
@@ -19,7 +19,7 @@ impl SceneBuilder {
         }
     }
 
-    pub fn add(mut self, object: Rc<dyn Hit>) -> Self {
+    pub fn add(mut self, object: Arc<dyn Hit>) -> Self {
         self.bounding_box.combine(object.bounding_box());
         self.objects.push(object);
 
@@ -35,7 +35,7 @@ impl SceneBuilder {
 }
 
 pub struct Scene {
-    pub objects: Vec<Rc<dyn Hit>>,
+    pub objects: Vec<Arc<dyn Hit>>,
     bounding_box: Aabb,
 }
 

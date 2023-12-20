@@ -1,5 +1,6 @@
 use crate::vec::Vec3;
 
+#[derive(Clone)]
 pub struct Viewport {
     /// Width of the viewport in world units.
     pub width: f64,

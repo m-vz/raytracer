@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::bvh::BvhNode;
 use crate::camera::Camera;
@@ -27,41 +27,41 @@ fn main() {
     let test_size = 800;
     let image = Image::with_aspect_ratio(test_size, 16.0 / 9.0, Color::black());
     let root = BvhNode::new(vec![
-        Rc::new(
+        Arc::new(
             SphereBuilder::new(
                 Vec3(0.0, -1000.3, 0.0),
                 1000.0,
-                Rc::new(Lambertian {
+                Arc::new(Lambertian {
                     albedo: Color::new(0.75, 0.75, 0.75),
                 }),
             )
             .build(),
         ),
-        Rc::new(
+        Arc::new(
             SphereBuilder::new(
                 Vec3(0.0, 0.0, 0.5),
                 0.3,
-                Rc::new(Dielectric {
+                Arc::new(Dielectric {
                     refraction_index: 1.5,
                 }),
             )
             .build(),
         ),
-        Rc::new(
+        Arc::new(
             SphereBuilder::new(
                 Vec3(-0.5, 0.0, -0.25),
                 0.3,
-                Rc::new(Lambertian {
+                Arc::new(Lambertian {
                     albedo: Color::new(0.9, 0.0, 0.0),
                 }),
             )
             .build(),
         ),
-        Rc::new(
+        Arc::new(
             SphereBuilder::new(
                 Vec3(0.5, 0.0, -0.25),
                 0.3,
-                Rc::new(Metal {
+                Arc::new(Metal {
                     albedo: Color::new(0.9, 0.6, 0.2),
                     fuzz: 0.05,
                 }),
@@ -80,5 +80,9 @@ fn main() {
         image,
     );
 
-    camera.render(&root, "output/test.ppm").unwrap();
+    let threads = 8;
+    camera.samples = threads;
+    camera
+        .render_and_save(Arc::new(root), "output/result.ppm", threads)
+        .unwrap();
 }
