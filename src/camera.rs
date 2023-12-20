@@ -112,7 +112,7 @@ impl Camera {
         }
 
         println!("writing file...");
-        if let Err(ImageError::IOError(error)) = self.target.write_ppm(path, true) {
+        if let Err(ImageError::IOError(error)) = self.target.write_png(path, true) {
             return Err(error.into());
         }
 

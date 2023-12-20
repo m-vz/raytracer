@@ -24,7 +24,7 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let test_size = 800;
+    let test_size = 600;
     let image = Image::with_aspect_ratio(test_size, 16.0 / 9.0, Color::black());
     let root = BvhNode::new(vec![
         Arc::new(
@@ -75,14 +75,14 @@ fn main() {
         camera_position.look_at(&Vec3(0.0, 0.0, 0.5)),
         Vec3::up(),
         0.8,
-        3.0,
+        2.0,
         50.0,
         image,
     );
 
-    let threads = 8;
-    camera.samples = threads;
+    let threads = 16;
+    camera.samples = 4 * threads;
     camera
-        .render_and_save(Arc::new(root), "output/result.ppm", threads)
+        .render_and_save(Arc::new(root), "output/result.png", threads)
         .unwrap();
 }

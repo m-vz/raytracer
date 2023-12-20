@@ -2,6 +2,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 use float_cmp::{ApproxEq, F64Margin};
+use image::Rgb;
 
 use crate::vec::Vec3;
 
@@ -160,6 +161,17 @@ impl From<(u8, u8, u8)> for Color {
 impl From<Vec3> for Color {
     fn from(value: Vec3) -> Self {
         Self(value)
+    }
+}
+
+impl From<Color> for Rgb<u8> {
+    fn from(value: Color) -> Self {
+        let clamped = value.clamped();
+        Rgb([
+            (clamped.0 .0 * 255.0) as u8,
+            (clamped.0 .1 * 255.0) as u8,
+            (clamped.0 .2 * 255.0) as u8,
+        ])
     }
 }
 

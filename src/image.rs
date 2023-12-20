@@ -2,6 +2,8 @@ use std::fs::{create_dir_all, File};
 use std::io::Write;
 use std::path::Path;
 
+use image::{ImageBuffer, Rgb};
+
 use crate::color::Color;
 
 #[derive(Debug)]
@@ -126,6 +128,25 @@ impl Image {
                 file.write_all(pixel.as_bytes())?;
             }
         }
+
+        Ok(())
+    }
+
+    pub fn write_png<P: AsRef<Path>>(
+        &self,
+        path: P,
+        to_gamma_space: bool,
+    ) -> Result<(), ImageError> {
+        let image: ImageBuffer<Rgb<u8>, _> =
+            ImageBuffer::from_fn(self.width, self.height, |x, y| {
+                if to_gamma_space {
+                    self.get_pixel(x, y).to_gamma_space().into()
+                } else {
+                    self.get_pixel(x, y).into()
+                }
+            });
+
+        image.save(path).expect("couldn't save image");
 
         Ok(())
     }
