@@ -4,6 +4,7 @@ use crate::vec::Vec3;
 
 pub struct SolidColor(pub Color);
 
+#[allow(dead_code)]
 impl SolidColor {
     pub fn black() -> Self {
         Self(Color::black())

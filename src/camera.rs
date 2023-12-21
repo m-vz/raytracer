@@ -38,18 +38,38 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(
+    pub fn look_at(
         position: Vec3,
-        forward: Vec3,
+        look_at: Vec3,
         up: Vec3,
         focus_distance: f64,
         defocus_angle: f64,
         fov: f64,
         target: Image,
     ) -> Self {
-        let direction = forward.normalized();
-        let right = direction.cross(&up);
-        let up = right.cross(&direction);
+        Self::face(
+            position,
+            position.look_at(&look_at),
+            up,
+            focus_distance,
+            defocus_angle,
+            fov,
+            target,
+        )
+    }
+
+    pub fn face(
+        position: Vec3,
+        mut forward: Vec3,
+        up: Vec3,
+        focus_distance: f64,
+        defocus_angle: f64,
+        fov: f64,
+        target: Image,
+    ) -> Self {
+        forward.normalize();
+        let right = forward.cross(&up.normalized());
+        let up = right.cross(&forward);
 
         let h = (math::deg_to_rad(fov) / 2.0).tan();
         let viewport_height = 2.0 * h * focus_distance;
@@ -198,7 +218,7 @@ mod tests {
 
     #[test]
     fn created_correctly() {
-        let camera = Camera::new(
+        let camera = Camera::face(
             Vec3(0.0, 0.0, 0.0),
             Vec3(0.0, 0.0, -1.0),
             Vec3(0.0, 1.0, 0.0),

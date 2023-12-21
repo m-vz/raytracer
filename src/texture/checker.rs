@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::color::Color;
+use crate::texture::solid_color::SolidColor;
 use crate::texture::Texture;
 use crate::vec::Vec3;
 
@@ -17,6 +18,10 @@ impl Checker {
             even,
             odd,
         }
+    }
+
+    pub fn new_with_colors(scale: f64, even: Color, odd: Color) -> Self {
+        Self::new(scale, Arc::new(SolidColor(even)), Arc::new(SolidColor(odd)))
     }
 }
 
