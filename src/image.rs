@@ -45,6 +45,23 @@ impl Image {
         }
     }
 
+    pub fn load_png<P: AsRef<Path>>(path: P) -> Result<Self, ImageError> {
+        let image = image::open(path).expect("Failed to open image");
+        let width = image.width();
+        let height = image.height();
+        let data = image
+            .into_rgb8()
+            .enumerate_pixels()
+            .map(|(_, _, pixel)| Color::from(*pixel))
+            .collect();
+
+        Ok(Self {
+            width,
+            height,
+            data,
+        })
+    }
+
     pub fn average(images: &Vec<Self>) -> Result<Self, ImageError> {
         if images.is_empty() {
             return Err(ImageError::AveragingZeroImages);
@@ -96,6 +113,13 @@ impl Image {
 
     pub fn get_pixel(&self, x: u32, y: u32) -> Color {
         self.data[(y * self.width + x) as usize]
+    }
+
+    pub fn get_pixel_by_uv(&self, u: f64, v: f64) -> Color {
+        self.get_pixel(
+            (u.clamp(0.0, 1.0) * self.width as f64) as u32,
+            ((1.0 - v.clamp(0.0, 1.0)) * self.height as f64) as u32,
+        )
     }
 
     pub fn write_ppm<P: AsRef<Path>>(

@@ -3,6 +3,7 @@ use crate::vec::Vec3;
 
 pub mod checker;
 pub mod solid_color;
+pub mod image;
 
 pub trait Texture: Send + Sync {
     fn value(&self, u: f64, v: f64, point: Vec3) -> Color;

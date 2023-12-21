@@ -6,11 +6,20 @@ use crate::color::Color;
 use crate::hit::HitResult;
 use crate::material::Material;
 use crate::ray::Ray;
+use crate::texture::solid_color::SolidColor;
 use crate::texture::Texture;
 use crate::vec::Vec3;
 
 pub struct Lambertian {
-    pub texture: Arc<dyn Texture>
+    pub texture: Arc<dyn Texture>,
+}
+
+impl Lambertian {
+    pub fn with_color(color: Color) -> Self {
+        Self {
+            texture: Arc::new(SolidColor(color)),
+        }
+    }
 }
 
 impl Material for Lambertian {

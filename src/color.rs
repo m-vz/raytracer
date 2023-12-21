@@ -175,6 +175,16 @@ impl From<Color> for Rgb<u8> {
     }
 }
 
+impl From<Rgb<u8>> for Color {
+    fn from(value: Rgb<u8>) -> Self {
+        Self(Vec3(
+            value.0[0] as f64 / 255.0,
+            value.0[1] as f64 / 255.0,
+            value.0[2] as f64 / 255.0,
+        ))
+    }
+}
+
 impl ApproxEq for Color {
     type Margin = F64Margin;
 

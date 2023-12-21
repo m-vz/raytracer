@@ -1,3 +1,4 @@
+use std::f64::consts::PI;
 use std::ops::RangeBounds;
 use std::sync::Arc;
 
@@ -70,6 +71,13 @@ impl Sphere {
             self.center
         }
     }
+
+    fn uv(point: &Vec3) -> (f64, f64) {
+        let theta = (-point.1).acos();
+        let phi = (-point.2).atan2(point.0) + PI;
+
+        (phi / (2.0 * PI), theta / PI)
+    }
 }
 
 impl Hit for Sphere {
@@ -95,13 +103,15 @@ impl Hit for Sphere {
         }
 
         let point = ray.at(t);
+        let outward_normal = (point - center) / self.radius;
+        let uv = Self::uv(&outward_normal);
         Some(HitResult::new(
             ray,
             t,
-            0.0, // TODO: get u and v
-            0.0,
+            uv.0,
+            uv.1,
             point,
-            (point - center) / self.radius,
+            outward_normal,
             self.material.clone(),
         ))
     }

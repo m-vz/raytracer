@@ -10,7 +10,7 @@ use crate::material::lambertian::Lambertian;
 use crate::material::metal::Metal;
 use crate::sphere::SphereBuilder;
 use crate::texture::checker::Checker;
-use crate::texture::solid_color::SolidColor;
+use crate::texture::image::ImageTexture;
 use crate::vec::Vec3;
 
 mod bvh;
@@ -43,16 +43,36 @@ fn main() {
 #[allow(dead_code)]
 fn scene_b(image: Image) -> (Camera, Arc<dyn Hit>) {
     let material = Arc::new(Lambertian {
-        texture: Arc::new(Checker::new_with_colors(
-            0.4,
-            Color::new(0.2, 0.3, 0.1),
-            0.9 * Color::white(),
-        )),
+        texture: Arc::new(ImageTexture::load("resources/earth.png").unwrap()),
     });
+    let mut spheres: Vec<Arc<dyn Hit>> = Vec::new();
+    for z in -2..=2 {
+        for y in 0..=1 {
+            for x in -2..=2 {
+                spheres.push(Arc::new(
+                    SphereBuilder::new(
+                        Vec3(x as f64 * 0.5, y as f64 * 0.5, z as f64),
+                        0.2,
+                        if z == 2 && y == 0 && x == 0 {
+                            Arc::new(Dielectric {
+                                refraction_index: 1.458,
+                            })
+                        } else {
+                            material.clone()
+                        },
+                    )
+                    .build(),
+                ));
+            }
+        }
+    }
+    spheres.push(Arc::new(
+        SphereBuilder::new(Vec3(0.0, -1000.2, 0.0), 1000.0, material).build(),
+    ));
 
     (
         Camera::look_at(
-            Vec3(13.0, 2.0, 3.0),
+            Vec3(0.0, 0.0, 4.0),
             Vec3::zero(),
             Vec3::up(),
             3.0,
@@ -60,10 +80,7 @@ fn scene_b(image: Image) -> (Camera, Arc<dyn Hit>) {
             20.0,
             image,
         ),
-        Arc::new(BvhNode::new(vec![
-            Arc::new(SphereBuilder::new(Vec3(0.0, -10.0, 0.0), 10.0, material.clone()).build()),
-            Arc::new(SphereBuilder::new(Vec3(0.0, 10.0, 0.0), 10.0, material).build()),
-        ])),
+        Arc::new(BvhNode::new(spheres)),
     )
 }
 
@@ -110,9 +127,7 @@ fn scene_a(image: Image) -> (Camera, Arc<dyn Hit>) {
                 SphereBuilder::new(
                     Vec3(-0.5, 0.0, -0.75),
                     0.3,
-                    Arc::new(Lambertian {
-                        texture: Arc::new(SolidColor(Color::new(0.9, 0.0, 0.0))),
-                    }),
+                    Arc::new(Lambertian::with_color(Color::new(0.9, 0.0, 0.0))),
                 )
                 .build(),
             ),
