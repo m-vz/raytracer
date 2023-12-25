@@ -11,7 +11,7 @@ use crate::material::metal::Metal;
 use crate::sphere::SphereBuilder;
 use crate::texture::checker::Checker;
 use crate::texture::image::ImageTexture;
-use crate::texture::noise::Perlin;
+use crate::texture::noise::{Perlin, TurbulentPerlin};
 use crate::vec::Vec3;
 
 mod bvh;
@@ -43,10 +43,6 @@ fn main() {
 
 #[allow(dead_code)]
 fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
-    let material = Arc::new(Lambertian {
-        texture: Arc::new(Perlin::new(4.0)),
-    });
-
     (
         Camera::look_at(
             Vec3(13.0, 2.0, 3.0),
@@ -58,8 +54,26 @@ fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
             image,
         ),
         Arc::new(BvhNode::new(vec![
-            Arc::new(SphereBuilder::new(Vec3(0.0, -1000.0, 0.0), 1000.0, material.clone()).build()),
-            Arc::new(SphereBuilder::new(Vec3(0.0, 2.0, 0.0), 2.0, material.clone()).build()),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(0.0, -1000.0, 0.0),
+                    1000.0,
+                    Arc::new(Lambertian {
+                        texture: Arc::new(TurbulentPerlin::new(1.0, 10)),
+                    }),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(0.0, 2.0, 0.0),
+                    2.0,
+                    Arc::new(Lambertian {
+                        texture: Arc::new(Perlin::new(8.0)),
+                    }),
+                )
+                .build(),
+            ),
         ])),
     )
 }

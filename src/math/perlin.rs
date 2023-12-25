@@ -58,4 +58,17 @@ impl PerlinNoise {
 
         noise
     }
+
+    pub fn turbulence(&self, mut point: Vec3, depth: u32) -> f64 {
+        let mut noise = 0.0;
+        let mut weight = 1.0;
+
+        for _ in 0..depth {
+            noise += weight * self.noise(point);
+            weight *= 0.5;
+            point *= 2.0;
+        }
+
+        noise.abs()
+    }
 }
