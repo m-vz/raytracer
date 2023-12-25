@@ -114,6 +114,16 @@ impl Vec3 {
         )
     }
 
+    pub fn floored(&self) -> Self {
+        Self(self.0.floor(), self.1.floor(), self.2.floor())
+    }
+
+    pub fn floor(&mut self) {
+        self.0 = self.0.floor();
+        self.1 = self.1.floor();
+        self.2 = self.2.floor();
+    }
+
     pub fn look_at(&self, rhs: &Self) -> Self {
         *rhs - *self
     }

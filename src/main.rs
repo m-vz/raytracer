@@ -11,6 +11,7 @@ use crate::material::metal::Metal;
 use crate::sphere::SphereBuilder;
 use crate::texture::checker::Checker;
 use crate::texture::image::ImageTexture;
+use crate::texture::noise::Perlin;
 use crate::vec::Vec3;
 
 mod bvh;
@@ -31,17 +32,40 @@ fn main() {
     let width = 600;
     let image = Image::with_aspect_ratio(width, 16.0 / 9.0, Color::black());
 
-    let (mut camera, root) = scene_b(image);
+    let (mut camera, root) = noise(image);
 
     let threads = 16;
-    camera.samples = 4 * threads;
+    camera.samples = threads;
     camera
         .render_and_save(root, "output/result.png", threads)
         .unwrap();
 }
 
 #[allow(dead_code)]
-fn scene_b(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
+    let material = Arc::new(Lambertian {
+        texture: Arc::new(Perlin::new(4.0)),
+    });
+
+    (
+        Camera::look_at(
+            Vec3(13.0, 2.0, 3.0),
+            Vec3::zero(),
+            Vec3::up(),
+            3.0,
+            0.0,
+            20.0,
+            image,
+        ),
+        Arc::new(BvhNode::new(vec![
+            Arc::new(SphereBuilder::new(Vec3(0.0, -1000.0, 0.0), 1000.0, material.clone()).build()),
+            Arc::new(SphereBuilder::new(Vec3(0.0, 2.0, 0.0), 2.0, material.clone()).build()),
+        ])),
+    )
+}
+
+#[allow(dead_code)]
+fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
     let material = Arc::new(Lambertian {
         texture: Arc::new(ImageTexture::load("resources/earth.png").unwrap()),
     });
@@ -75,8 +99,8 @@ fn scene_b(image: Image) -> (Camera, Arc<dyn Hit>) {
             Vec3(0.0, 0.0, 4.0),
             Vec3::zero(),
             Vec3::up(),
-            3.0,
-            0.0,
+            2.0,
+            1.0,
             20.0,
             image,
         ),
@@ -85,7 +109,7 @@ fn scene_b(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn scene_a(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn checker_balls(image: Image) -> (Camera, Arc<dyn Hit>) {
     let camera_position = Vec3(0.0, 0.25, 1.0);
 
     (
