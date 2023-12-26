@@ -35,6 +35,7 @@ pub struct Camera {
     target: Image,
     pub samples: u32,
     pub max_bounces: u32,
+    pub background: Color,
 }
 
 impl Camera {
@@ -46,6 +47,7 @@ impl Camera {
         defocus_angle: f64,
         fov: f64,
         target: Image,
+        background: Color,
     ) -> Self {
         Self::face(
             position,
@@ -55,6 +57,7 @@ impl Camera {
             defocus_angle,
             fov,
             target,
+            background,
         )
     }
 
@@ -66,6 +69,7 @@ impl Camera {
         defocus_angle: f64,
         fov: f64,
         target: Image,
+        background: Color,
     ) -> Self {
         forward.normalize();
         let right = forward.cross(&up.normalized());
@@ -91,6 +95,7 @@ impl Camera {
             target,
             samples: 9,
             max_bounces: 50,
+            background,
         }
     }
 
@@ -195,14 +200,8 @@ impl Camera {
                 Color::black()
             }
         } else {
-            Camera::background(ray)
+            self.background
         }
-    }
-
-    fn background(ray: Ray) -> Color {
-        let a = 0.5 * (ray.normalized().direction.1 + 1.0);
-
-        (1.0 - a) * Color::white() + a * Color::new(0.5, 0.7, 1.0)
     }
 }
 
@@ -226,6 +225,7 @@ mod tests {
             10.0,
             90.0,
             Image::with_aspect_ratio(1, 1.0, Color::black()),
+            Color::black(),
         );
 
         assert_approx_eq!(Vec3, camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));

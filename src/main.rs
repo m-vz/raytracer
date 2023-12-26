@@ -55,6 +55,7 @@ fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
             0.0,
             80.0,
             image,
+            Color::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
@@ -127,6 +128,7 @@ fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
             0.0,
             20.0,
             image,
+            Color::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
@@ -192,6 +194,7 @@ fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
             1.0,
             20.0,
             image,
+            Color::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(spheres)),
     )
@@ -210,6 +213,7 @@ fn checker_balls(image: Image) -> (Camera, Arc<dyn Hit>) {
             2.0,
             40.0,
             image,
+            Color::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
