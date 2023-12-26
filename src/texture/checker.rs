@@ -26,16 +26,16 @@ impl Checker {
 }
 
 impl Texture for Checker {
-    fn value(&self, u: f64, v: f64, p: Vec3) -> Color {
+    fn value(&self, u: f64, v: f64, p: &Vec3) -> Color {
         if ((p.0 * self.inv_scale).floor() as i32
             + (p.1 * self.inv_scale).floor() as i32
             + (p.2 * self.inv_scale).floor() as i32)
             % 2
             == 0
         {
-            self.even.value(u, v, p)
+            self.even.value(u, v, &p)
         } else {
-            self.odd.value(u, v, p)
+            self.odd.value(u, v, &p)
         }
     }
 }

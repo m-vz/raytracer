@@ -15,7 +15,7 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
-    pub fn with_color(color: Color) -> Self {
+    pub fn colored(color: Color) -> Self {
         Self {
             texture: Arc::new(SolidColor(color)),
         }
@@ -36,7 +36,7 @@ impl Material for Lambertian {
                 direction,
                 time: ray.time,
             },
-            self.texture.value(hit.u, hit.v, hit.point),
+            self.texture.value(hit.u, hit.v, &hit.point),
         ))
     }
 }

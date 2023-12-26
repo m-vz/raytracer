@@ -20,7 +20,7 @@ impl SolidColor {
 }
 
 impl Texture for SolidColor {
-    fn value(&self, _: f64, _: f64, _: Vec3) -> Color {
+    fn value(&self, _: f64, _: f64, _: &Vec3) -> Color {
         self.0
     }
 }

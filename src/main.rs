@@ -244,7 +244,7 @@ fn checker_balls(image: Image) -> (Camera, Arc<dyn Hit>) {
                 SphereBuilder::new(
                     Vec3(-0.5, 0.0, -0.75),
                     0.3,
-                    Arc::new(Lambertian::with_color(Color::new(0.9, 0.0, 0.0))),
+                    Arc::new(Lambertian::colored(Color::new(0.9, 0.0, 0.0))),
                 )
                 .build(),
             ),

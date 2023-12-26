@@ -19,7 +19,7 @@ impl ImageTexture {
 }
 
 impl Texture for ImageTexture {
-    fn value(&self, u: f64, v: f64, _: Vec3) -> Color {
+    fn value(&self, u: f64, v: f64, _: &Vec3) -> Color {
         self.image.get_pixel_by_uv(u, v)
     }
 }

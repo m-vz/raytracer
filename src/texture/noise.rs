@@ -18,8 +18,8 @@ impl Perlin {
 }
 
 impl Texture for Perlin {
-    fn value(&self, _: f64, _: f64, point: Vec3) -> Color {
-        0.5 * (1.0 + self.generator.noise(self.scale * point)) * Color::white()
+    fn value(&self, _: f64, _: f64, point: &Vec3) -> Color {
+        0.5 * (1.0 + self.generator.noise(self.scale * *point)) * Color::white()
     }
 }
 
@@ -40,9 +40,9 @@ impl TurbulentPerlin {
 }
 
 impl Texture for TurbulentPerlin {
-    fn value(&self, _: f64, _: f64, point: Vec3) -> Color {
+    fn value(&self, _: f64, _: f64, point: &Vec3) -> Color {
         self.generator
-            .turbulence(self.scale * point, self.turbulence)
+            .turbulence(self.scale * *point, self.turbulence)
             * Color::white()
     }
 }
