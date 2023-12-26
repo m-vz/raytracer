@@ -194,10 +194,12 @@ impl Camera {
         }
 
         if let Some(hit) = root.hit(&ray, Interval(BIAS..f64::INFINITY)) {
+            let emitted = hit.material.emitted(hit.u, hit.v, &hit.point);
+
             if let Some((scattered, attenuation)) = hit.material.scatter(&ray, &hit) {
-                attenuation * self.ray_color(root, scattered, bounces + 1)
+                emitted + attenuation * self.ray_color(root, scattered, bounces + 1)
             } else {
-                Color::black()
+                emitted
             }
         } else {
             self.background

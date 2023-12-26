@@ -7,6 +7,7 @@ use crate::hit::Hit;
 use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
+use crate::material::light::DiffuseLight;
 use crate::material::metal::Metal;
 use crate::quad::QuadBuilder;
 use crate::sphere::SphereBuilder;
@@ -32,16 +33,70 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let width = 400;
+    let width = 800;
     let image = Image::with_aspect_ratio(width, 1.0, Color::black());
 
-    let (mut camera, root) = quads(image);
+    let (mut camera, root) = light(image);
 
     let threads = 16;
-    camera.samples = threads;
+    camera.samples = 81 * threads;
     camera
         .render_and_save(root, "output/result.png", threads)
         .unwrap();
+}
+
+#[allow(dead_code)]
+fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
+    (
+        Camera::face(
+            Vec3(0.0, 3.2, 8.0),
+            Vec3::forward(),
+            Vec3::up(),
+            8.0,
+            2.0,
+            60.0,
+            image,
+            Color::black(),
+        ),
+        Arc::new(BvhNode::new(vec![
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(0.0, -1000.0, 0.0),
+                    1000.0,
+                    Arc::new(Lambertian::colored(Color::white())),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(0.0, 2.0, 0.0),
+                    2.0,
+                    Arc::new(Metal {
+                        albedo: Color::white(),
+                        fuzz: 0.4,
+                    }),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(-2.0, 5.6, 0.0),
+                    1.0,
+                    Arc::new(DiffuseLight::colored(Color::new(0.1, 4.0, 0.1))),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3(1.0, 0.0, -3.0),
+                    4.0 * Vec3::right(),
+                    4.0 * Vec3::up(),
+                    Arc::new(DiffuseLight::colored(Color::new(4.0, 0.1, 0.1))),
+                )
+                .build(),
+            ),
+        ])),
+    )
 }
 
 #[allow(dead_code)]
