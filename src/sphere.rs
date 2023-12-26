@@ -12,8 +12,8 @@ use crate::vec::Vec3;
 pub struct SphereBuilder {
     pub center: Vec3,
     pub radius: f64,
-    pub movement: Option<Vec3>,
-    material: Arc<dyn Material>,
+    movement: Option<Vec3>,
+    pub material: Arc<dyn Material>,
 }
 
 #[allow(dead_code)]

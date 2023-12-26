@@ -6,6 +6,10 @@ pub struct SolidColor(pub Color);
 
 #[allow(dead_code)]
 impl SolidColor {
+    pub fn new(r: f64, g: f64, b: f64) -> Self {
+        Self(Color::new(r, g, b))
+    }
+
     pub fn black() -> Self {
         Self(Color::black())
     }

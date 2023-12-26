@@ -2,7 +2,7 @@ use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct Aabb(Interval, Interval, Interval);
 
 #[allow(dead_code)]
@@ -12,6 +12,34 @@ impl Aabb {
             Interval(a.0.min(b.0)..a.0.max(b.0)),
             Interval(a.1.min(b.1)..a.1.max(b.1)),
             Interval(a.2.min(b.2)..a.2.max(b.2)),
+        )
+    }
+
+    pub fn pad(&mut self, delta: f64) {
+        self.0.pad(delta);
+        self.1.pad(delta);
+        self.2.pad(delta);
+    }
+
+    pub fn padded(&self, delta: f64) -> Self {
+        Self(
+            self.0.padded(delta),
+            self.1.padded(delta),
+            self.2.padded(delta),
+        )
+    }
+
+    pub fn expand(&mut self, delta: f64) {
+        self.0.expand(delta);
+        self.1.expand(delta);
+        self.2.expand(delta);
+    }
+
+    pub fn expanded(&self, delta: f64) -> Self {
+        Self(
+            self.0.expanded(delta),
+            self.1.expanded(delta),
+            self.2.expanded(delta),
         )
     }
 
@@ -60,15 +88,5 @@ impl Aabb {
         }
 
         true
-    }
-}
-
-impl Default for Aabb {
-    fn default() -> Self {
-        Self(
-            Interval::default(),
-            Interval::default(),
-            Interval::default(),
-        )
     }
 }

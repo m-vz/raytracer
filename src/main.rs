@@ -8,10 +8,12 @@ use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
 use crate::material::metal::Metal;
+use crate::quad::QuadBuilder;
 use crate::sphere::SphereBuilder;
 use crate::texture::checker::Checker;
 use crate::texture::image::ImageTexture;
 use crate::texture::noise::{Perlin, TurbulentPerlin};
+use crate::texture::solid_color::SolidColor;
 use crate::vec::Vec3;
 
 mod bvh;
@@ -21,6 +23,7 @@ mod hit;
 mod image;
 mod material;
 mod math;
+mod quad;
 mod ray;
 mod scene;
 mod sphere;
@@ -29,16 +32,88 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let width = 600;
-    let image = Image::with_aspect_ratio(width, 16.0 / 9.0, Color::black());
+    let width = 400;
+    let image = Image::with_aspect_ratio(width, 1.0, Color::black());
 
-    let (mut camera, root) = noise(image);
+    let (mut camera, root) = quads(image);
 
     let threads = 16;
     camera.samples = threads;
     camera
         .render_and_save(root, "output/result.png", threads)
         .unwrap();
+}
+
+#[allow(dead_code)]
+fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
+    (
+        Camera::look_at(
+            Vec3(0.0, 0.0, 9.0),
+            Vec3::zero(),
+            Vec3::up(),
+            9.0,
+            0.0,
+            80.0,
+            image,
+        ),
+        Arc::new(BvhNode::new(vec![
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3(-3.0, -2.0, 5.0),
+                    4.0 * Vec3::forward(),
+                    4.0 * Vec3::up(),
+                    Arc::new(Lambertian {
+                        texture: Arc::new(SolidColor::new(1.0, 0.2, 0.2)),
+                    }),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3(-2.0, -2.0, 0.0),
+                    4.0 * Vec3::right(),
+                    4.0 * Vec3::up(),
+                    Arc::new(Lambertian {
+                        texture: Arc::new(SolidColor::new(0.2, 1.0, 0.2)),
+                    }),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3(3.0, -2.0, 1.0),
+                    -4.0 * Vec3::forward(),
+                    4.0 * Vec3::up(),
+                    Arc::new(Lambertian {
+                        texture: Arc::new(SolidColor::new(0.2, 0.2, 1.0)),
+                    }),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3(-2.0, 3.0, 1.0),
+                    4.0 * Vec3::right(),
+                    -4.0 * Vec3::forward(),
+                    Arc::new(Lambertian {
+                        texture: Arc::new(SolidColor::new(1.0, 0.5, 0.0)),
+                    }),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3(-2.0, -3.0, 5.0),
+                    4.0 * Vec3::right(),
+                    4.0 * Vec3::forward(),
+                    Arc::new(Lambertian {
+                        texture: Arc::new(SolidColor::new(0.2, 0.8, 0.8)),
+                    }),
+                )
+                .build(),
+            ),
+        ])),
+    )
 }
 
 #[allow(dead_code)]
