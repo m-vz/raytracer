@@ -33,16 +33,91 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let width = 800;
+    let width = 400;
     let image = Image::with_aspect_ratio(width, 1.0, Color::black());
 
-    let (mut camera, root) = light(image);
+    let (mut camera, root) = cornell_box(image);
 
     let threads = 16;
-    camera.samples = 81 * threads;
+    camera.samples = 9 * threads;
     camera
         .render_and_save(root, "output/result.png", threads)
         .unwrap();
+}
+
+#[allow(dead_code)]
+fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
+    let white = Arc::new(Lambertian::colored(Color::white()));
+    let a = 555.0;
+
+    (
+        Camera::face(
+            Vec3(278.0, 278.0, -800.0),
+            -Vec3::forward(),
+            Vec3::up(),
+            800.0,
+            0.0,
+            40.0,
+            image,
+            Color::black(),
+        ),
+        Arc::new(BvhNode::new(vec![
+            Arc::new(
+                QuadBuilder::new(
+                    a * Vec3::right(),
+                    a * Vec3::up(),
+                    a * -Vec3::forward(),
+                    Arc::new(Lambertian::colored(Color::new(0.12, 0.45, 0.15))),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3::zero(),
+                    a * Vec3::up(),
+                    a * -Vec3::forward(),
+                    Arc::new(Lambertian::colored(Color::new(0.65, 0.05, 0.05))),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3(343.0, 554.0, 332.0),
+                    Vec3(-130.0, 0.0, 0.0),
+                    Vec3(0.0, 0.0, -105.0),
+                    Arc::new(DiffuseLight::colored(Color::new(15.0, 15.0, 15.0))),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3::zero(),
+                    a * Vec3::right(),
+                    a * -Vec3::forward(),
+                    white.clone(),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    a * Vec3::unit(),
+                    a * -Vec3::right(),
+                    a * Vec3::forward(),
+                    white.clone(),
+                )
+                .build(),
+            ),
+            Arc::new(
+                QuadBuilder::new(
+                    a * -Vec3::forward(),
+                    a * Vec3::right(),
+                    a * Vec3::up(),
+                    white,
+                )
+                .build(),
+            ),
+        ])),
+    )
 }
 
 #[allow(dead_code)]
