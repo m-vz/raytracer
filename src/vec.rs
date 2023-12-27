@@ -86,6 +86,30 @@ impl Vec3 {
         }
     }
 
+    pub fn x(&self) -> Vec3 {
+        Vec3(self.0, 0.0, 0.0)
+    }
+
+    pub fn y(&self) -> Vec3 {
+        Vec3(0.0, self.1, 0.0)
+    }
+
+    pub fn z(&self) -> Vec3 {
+        Vec3(0.0, 0.0, self.2)
+    }
+
+    pub fn xy(&self) -> Vec3 {
+        Vec3(self.0, self.1, 0.0)
+    }
+
+    pub fn xz(&self) -> Vec3 {
+        Vec3(self.0, 0.0, self.2)
+    }
+
+    pub fn yz(&self) -> Vec3 {
+        Vec3(0.0, self.1, self.2)
+    }
+
     pub fn len(&self) -> f64 {
         self.len_sq().sqrt()
     }

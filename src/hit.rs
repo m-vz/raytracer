@@ -6,6 +6,7 @@ use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
+pub mod r#box;
 pub mod bvh;
 pub mod quad;
 pub mod scene;
