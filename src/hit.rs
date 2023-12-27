@@ -11,6 +11,7 @@ pub mod bvh;
 pub mod quad;
 pub mod scene;
 pub mod sphere;
+pub mod transform;
 
 pub struct HitResult {
     pub t: f64,

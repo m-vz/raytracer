@@ -3,10 +3,11 @@ use std::sync::Arc;
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hit::bvh::BvhNode;
+use crate::hit::Hit;
 use crate::hit::quad::QuadBuilder;
 use crate::hit::r#box::BoxBuilder;
 use crate::hit::sphere::SphereBuilder;
-use crate::hit::Hit;
+use crate::hit::transform::Translation;
 use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
@@ -36,7 +37,7 @@ fn main() {
     let (mut camera, root) = cornell_box(image);
 
     let threads = 16;
-    camera.samples = 9 * threads;
+    camera.samples = 4 * threads;
     camera
         .render_and_save(root, "output/result.png", threads)
         .unwrap();
@@ -121,9 +122,13 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
                 )
                 .build(),
             ),
-            Arc::new(
-                BoxBuilder::new(Vec3(265.0, 0.0, 295.0), Vec3(430.0, 330.0, 460.0), white).build(),
-            ),
+            Arc::new(Translation::new(
+                Arc::new(
+                    BoxBuilder::new(Vec3(265.0, 0.0, 295.0), Vec3(430.0, 330.0, 460.0), white)
+                        .build(),
+                ),
+                Vec3(100.0, 100.0, 0.0),
+            )),
         ])),
     )
 }

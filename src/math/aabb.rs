@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
@@ -88,5 +90,21 @@ impl Aabb {
         }
 
         true
+    }
+}
+
+impl Add<Vec3> for Aabb {
+    type Output = Aabb;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Aabb(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
+    }
+}
+
+impl Add<Aabb> for Vec3 {
+    type Output = Aabb;
+
+    fn add(self, rhs: Aabb) -> Self::Output {
+        rhs + self
     }
 }

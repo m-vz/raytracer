@@ -1,5 +1,5 @@
 use std::collections::Bound;
-use std::ops::{Range, RangeBounds};
+use std::ops::{Add, Range, RangeBounds};
 
 #[derive(Clone)]
 pub struct Interval(pub Range<f64>);
@@ -58,6 +58,22 @@ impl Interval {
 
     pub fn combined(&self, rhs: &Interval) -> Self {
         Self(self.start().min(rhs.start())..self.end().max(rhs.end()))
+    }
+}
+
+impl Add<f64> for Interval {
+    type Output = Interval;
+
+    fn add(self, rhs: f64) -> Self::Output {
+        Interval(self.0.start + rhs..self.0.end + rhs)
+    }
+}
+
+impl Add<Interval> for f64 {
+    type Output = Interval;
+
+    fn add(self, rhs: Interval) -> Self::Output {
+        rhs + self
     }
 }
 
