@@ -6,6 +6,11 @@ use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
+pub mod bvh;
+pub mod quad;
+pub mod scene;
+pub mod sphere;
+
 pub struct HitResult {
     pub t: f64,
     pub u: f64,

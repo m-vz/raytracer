@@ -1,33 +1,29 @@
 use std::sync::Arc;
 
-use crate::bvh::BvhNode;
 use crate::camera::Camera;
 use crate::color::Color;
+use crate::hit::bvh::BvhNode;
 use crate::hit::Hit;
+use crate::hit::quad::QuadBuilder;
+use crate::hit::sphere::SphereBuilder;
 use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
 use crate::material::light::DiffuseLight;
 use crate::material::metal::Metal;
-use crate::quad::QuadBuilder;
-use crate::sphere::SphereBuilder;
 use crate::texture::checker::Checker;
 use crate::texture::image::ImageTexture;
 use crate::texture::noise::{Perlin, TurbulentPerlin};
 use crate::texture::solid_color::SolidColor;
 use crate::vec::Vec3;
 
-mod bvh;
 mod camera;
 mod color;
 mod hit;
 mod image;
 mod material;
 mod math;
-mod quad;
 mod ray;
-mod scene;
-mod sphere;
 mod texture;
 mod vec;
 mod viewport;
