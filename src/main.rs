@@ -3,11 +3,11 @@ use std::sync::Arc;
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hit::bvh::BvhNode;
+use crate::hit::Hit;
 use crate::hit::quad::QuadBuilder;
 use crate::hit::r#box::BoxBuilder;
 use crate::hit::sphere::SphereBuilder;
-use crate::hit::transform::Translation;
-use crate::hit::Hit;
+use crate::hit::transform::{RotationY, Translation};
 use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
@@ -114,20 +114,24 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
                 )
                 .build(),
             ),
-            Arc::new(
-                BoxBuilder::new(
-                    Vec3(130.0, 0.0, 65.0),
-                    Vec3(295.0, 165.0, 230.0),
-                    white.clone(),
-                )
-                .build(),
-            ),
             Arc::new(Translation::new(
-                Arc::new(
-                    BoxBuilder::new(Vec3(265.0, 0.0, 295.0), Vec3(430.0, 330.0, 460.0), white)
-                        .build(),
-                ),
-                Vec3(100.0, 100.0, 0.0),
+                Arc::new(RotationY::new(
+                    Arc::new(
+                        BoxBuilder::new(Vec3::zero(), Vec3(165.0, 330.0, 165.0), white.clone())
+                            .build(),
+                    ),
+                    15.0,
+                )),
+                Vec3(265.0, 0.0, 295.0),
+            )),
+            Arc::new(Translation::new(
+                Arc::new(RotationY::new(
+                    Arc::new(
+                        BoxBuilder::new(Vec3::zero(), Vec3(165.0, 165.0, 165.0), white).build(),
+                    ),
+                    -18.0,
+                )),
+                Vec3(130.0, 0.0, 65.0),
             )),
         ])),
     )

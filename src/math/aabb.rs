@@ -5,7 +5,7 @@ use crate::ray::Ray;
 use crate::vec::Vec3;
 
 #[derive(Default, Clone)]
-pub struct Aabb(Interval, Interval, Interval);
+pub struct Aabb(pub Interval, pub Interval, pub Interval);
 
 #[allow(dead_code)]
 impl Aabb {

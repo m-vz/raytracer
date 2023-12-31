@@ -86,6 +86,15 @@ impl Vec3 {
         }
     }
 
+    pub fn set_axis(&mut self, n: u32, value: f64) {
+        match n {
+            0 => self.0 = value,
+            1 => self.1 = value,
+            2 => self.2 = value,
+            _ => panic!("Invalid axis"),
+        }
+    }
+
     pub fn x(&self) -> Vec3 {
         Vec3(self.0, 0.0, 0.0)
     }
