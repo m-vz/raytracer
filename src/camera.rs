@@ -4,6 +4,7 @@ use std::sync::Arc;
 use std::thread::spawn;
 use std::time::Instant;
 
+use crate::background::Background;
 use crate::color::Color;
 use crate::hit::Hit;
 use crate::image::{Image, ImageError};
@@ -35,7 +36,7 @@ pub struct Camera {
     target: Image,
     pub samples: u32,
     pub max_bounces: u32,
-    pub background: Color,
+    pub background: Arc<dyn Background>,
 }
 
 impl Camera {
@@ -47,7 +48,7 @@ impl Camera {
         defocus_angle: f64,
         fov: f64,
         target: Image,
-        background: Color,
+        background: impl Background + 'static,
     ) -> Self {
         Self::face(
             position,
@@ -69,7 +70,7 @@ impl Camera {
         defocus_angle: f64,
         fov: f64,
         target: Image,
-        background: Color,
+        background: impl Background + 'static,
     ) -> Self {
         forward.normalize();
         let right = forward.cross(&up.normalized());
@@ -95,7 +96,7 @@ impl Camera {
             target,
             samples: 9,
             max_bounces: 50,
-            background,
+            background: Arc::new(background),
         }
     }
 
@@ -202,15 +203,18 @@ impl Camera {
                 emitted
             }
         } else {
-            self.background
+            self.background.background(&ray)
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use float_cmp::assert_approx_eq;
 
+    use crate::background::background_color::BackgroundColor;
     use crate::color::Color;
     use crate::image::Image;
     use crate::vec::Vec3;
@@ -227,7 +231,7 @@ mod tests {
             10.0,
             90.0,
             Image::with_aspect_ratio(1, 1.0, Color::black()),
-            Color::black(),
+            Arc::new(BackgroundColor::black()),
         );
 
         assert_approx_eq!(Vec3, camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));

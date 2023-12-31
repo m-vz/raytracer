@@ -1,13 +1,14 @@
 use std::sync::Arc;
 
+use crate::background::background_color::BackgroundColor;
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hit::bvh::BvhNode;
-use crate::hit::Hit;
 use crate::hit::quad::QuadBuilder;
 use crate::hit::r#box::BoxBuilder;
 use crate::hit::sphere::SphereBuilder;
 use crate::hit::transform::{RotationY, Translation};
+use crate::hit::Hit;
 use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
@@ -19,6 +20,7 @@ use crate::texture::noise::{Perlin, TurbulentPerlin};
 use crate::texture::solid_color::SolidColor;
 use crate::vec::Vec3;
 
+mod background;
 mod camera;
 mod color;
 mod hit;
@@ -34,13 +36,92 @@ fn main() {
     let width = 400;
     let image = Image::with_aspect_ratio(width, 1.0, Color::black());
 
-    let (mut camera, root) = cornell_box(image);
+    let (mut camera, root) = hdri(image);
 
-    let threads = 16;
-    camera.samples = 4 * threads;
+    let threads = 8;
+    camera.samples = threads;
     camera
         .render_and_save(root, "output/result.png", threads)
         .unwrap();
+}
+
+#[allow(dead_code)]
+fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
+    let white = Arc::new(Lambertian::colored(Color::white()));
+    let a = 5.55;
+
+    (
+        Camera::face(
+            Vec3(2.78, 2.78, -8.0),
+            -Vec3::forward(),
+            Vec3::up(),
+            8.0,
+            0.0,
+            40.0,
+            image,
+            BackgroundColor::new(0.6, 0.6, 0.8),
+        ),
+        Arc::new(BvhNode::new(vec![
+            // left
+            Arc::new(
+                QuadBuilder::new(
+                    a * Vec3::right(),
+                    a * -Vec3::forward(),
+                    a * Vec3::up(),
+                    Arc::new(Lambertian::colored(Color::new(0.12, 0.45, 0.15))),
+                )
+                .build(),
+            ),
+            // right
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3::zero(),
+                    a * -Vec3::forward(),
+                    a * Vec3::up(),
+                    Arc::new(Lambertian::colored(Color::new(0.65, 0.05, 0.05))),
+                )
+                .build(),
+            ),
+            // bottom
+            Arc::new(
+                QuadBuilder::new(
+                    Vec3::zero(),
+                    a * Vec3::right(),
+                    a * -Vec3::forward(),
+                    white.clone(),
+                )
+                .build(),
+            ),
+            // top
+            Arc::new(
+                QuadBuilder::new(
+                    a * Vec3::up(),
+                    a * Vec3::right(),
+                    a * -Vec3::forward(),
+                    white.clone(),
+                )
+                .build(),
+            ),
+            // tall box
+            Arc::new(Translation::new(
+                Arc::new(RotationY::new(
+                    Arc::new(
+                        BoxBuilder::new(Vec3::zero(), Vec3(1.65, 3.3, 1.65), white.clone()).build(),
+                    ),
+                    15.0,
+                )),
+                Vec3(2.65, 0.0, 2.95),
+            )),
+            // small box
+            Arc::new(Translation::new(
+                Arc::new(RotationY::new(
+                    Arc::new(BoxBuilder::new(Vec3::zero(), Vec3(1.65, 1.65, 1.65), white).build()),
+                    -18.0,
+                )),
+                Vec3(1.3, 0.0, 0.65),
+            )),
+        ])),
+    )
 }
 
 #[allow(dead_code)]
@@ -57,7 +138,7 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
             0.0,
             40.0,
             image,
-            Color::black(),
+            BackgroundColor::black(),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
@@ -148,7 +229,7 @@ fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
             2.0,
             60.0,
             image,
-            Color::black(),
+            BackgroundColor::black(),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
@@ -202,7 +283,7 @@ fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
             0.0,
             80.0,
             image,
-            Color::new(0.7, 0.8, 1.0),
+            BackgroundColor::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
@@ -275,7 +356,7 @@ fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
             0.0,
             20.0,
             image,
-            Color::new(0.7, 0.8, 1.0),
+            BackgroundColor::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
@@ -341,7 +422,7 @@ fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
             1.0,
             20.0,
             image,
-            Color::new(0.7, 0.8, 1.0),
+            BackgroundColor::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(spheres)),
     )
@@ -360,7 +441,7 @@ fn checker_balls(image: Image) -> (Camera, Arc<dyn Hit>) {
             2.0,
             40.0,
             image,
-            Color::new(0.7, 0.8, 1.0),
+            BackgroundColor::new(0.7, 0.8, 1.0),
         ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
