@@ -13,7 +13,7 @@ pub struct ImageTexture {
 impl ImageTexture {
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, ImageError> {
         Ok(Self {
-            image: Arc::new(Image::load_png(path)?),
+            image: Arc::new(Image::load(path)?),
         })
     }
 }

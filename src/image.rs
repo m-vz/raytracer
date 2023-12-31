@@ -1,10 +1,13 @@
+use std::ffi::OsStr;
 use std::fs::{create_dir_all, File};
-use std::io::Write;
+use std::io::{BufReader, Write};
 use std::path::Path;
 
 use image::{ImageBuffer, Rgb};
+use image::codecs::hdr::HdrDecoder;
 
 use crate::color::Color;
+use crate::math;
 
 #[derive(Debug)]
 pub enum ImageError {
@@ -45,15 +48,32 @@ impl Image {
         }
     }
 
-    pub fn load_png<P: AsRef<Path>>(path: P) -> Result<Self, ImageError> {
-        let image = image::open(path).expect("Failed to open image");
-        let width = image.width();
-        let height = image.height();
-        let data = image
-            .into_rgb8()
-            .enumerate_pixels()
-            .map(|(_, _, pixel)| Color::from(*pixel))
-            .collect();
+    pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, ImageError> {
+        let width: u32;
+        let height: u32;
+        let data: Vec<Color>;
+
+        if path.as_ref().extension() == Some(OsStr::new("hdr")) {
+            let file = File::open(&path).expect("Failed to open image");
+            let decoder = HdrDecoder::new(BufReader::new(file)).expect("Failed to read hdr image");
+            width = decoder.metadata().width;
+            height = decoder.metadata().height;
+            data = decoder
+                .read_image_hdr()
+                .expect("Failed to read image")
+                .into_iter()
+                .map(|pixel| Color::new(pixel.0[0] as f64, pixel.0[1] as f64, pixel.0[2] as f64))
+                .collect();
+        } else {
+            let image = image::open(path).expect("Failed to open image");
+            width = image.width();
+            height = image.height();
+            data = image
+                .into_rgb8()
+                .enumerate_pixels()
+                .map(|(_, _, pixel)| Color::from(*pixel))
+                .collect();
+        }
 
         Ok(Self {
             width,
@@ -117,8 +137,8 @@ impl Image {
 
     pub fn get_pixel_by_uv(&self, u: f64, v: f64) -> Color {
         self.get_pixel(
-            (u.clamp(0.0, 1.0) * self.width as f64) as u32,
-            ((1.0 - v.clamp(0.0, 1.0)) * self.height as f64) as u32,
+            (math::clamp_repeating(u) * self.width as f64) as u32,
+            ((1.0 - math::clamp_repeating(v)) * self.height as f64) as u32,
         )
     }
 

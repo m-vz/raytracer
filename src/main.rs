@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
 use crate::background::background_color::BackgroundColor;
+use crate::background::hdri::Hdri;
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hit::bvh::BvhNode;
+use crate::hit::Hit;
 use crate::hit::quad::QuadBuilder;
 use crate::hit::r#box::BoxBuilder;
 use crate::hit::sphere::SphereBuilder;
 use crate::hit::transform::{RotationY, Translation};
-use crate::hit::Hit;
 use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;
@@ -39,7 +40,7 @@ fn main() {
     let (mut camera, root) = hdri(image);
 
     let threads = 8;
-    camera.samples = threads;
+    camera.samples = 4 * threads;
     camera
         .render_and_save(root, "output/result.png", threads)
         .unwrap();
@@ -59,7 +60,12 @@ fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
             0.0,
             40.0,
             image,
-            BackgroundColor::new(0.6, 0.6, 0.8),
+            Hdri::load(
+                "resources/hdri/drakensberg_solitary_mountain_puresky_4k.hdr",
+                1.0,
+                0.0,
+            )
+            .unwrap(),
         ),
         Arc::new(BvhNode::new(vec![
             // left

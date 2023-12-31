@@ -8,7 +8,6 @@ use crate::background::Background;
 use crate::color::Color;
 use crate::hit::Hit;
 use crate::image::{Image, ImageError};
-use crate::math;
 use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
@@ -76,7 +75,7 @@ impl Camera {
         let right = forward.cross(&up.normalized());
         let up = right.cross(&forward);
 
-        let h = (math::deg_to_rad(fov) / 2.0).tan();
+        let h = (fov.to_radians() / 2.0).tan();
         let viewport_height = 2.0 * h * focus_distance;
 
         let viewport = Viewport::with_center(
@@ -87,7 +86,7 @@ impl Camera {
             -up,
         );
 
-        let defocus_radius = focus_distance * math::deg_to_rad(defocus_angle / 2.0).tan();
+        let defocus_radius = focus_distance * (defocus_angle / 2.0).to_radians().tan();
 
         Self {
             position,
@@ -210,8 +209,6 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
     use float_cmp::assert_approx_eq;
 
     use crate::background::background_color::BackgroundColor;
@@ -231,7 +228,7 @@ mod tests {
             10.0,
             90.0,
             Image::with_aspect_ratio(1, 1.0, Color::black()),
-            Arc::new(BackgroundColor::black()),
+            BackgroundColor::black(),
         );
 
         assert_approx_eq!(Vec3, camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));

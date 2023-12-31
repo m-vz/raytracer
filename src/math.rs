@@ -1,9 +1,13 @@
-use std::f64::consts::PI;
-
 pub mod aabb;
 pub mod interval;
 pub mod perlin;
 
-pub fn deg_to_rad(deg: f64) -> f64 {
-    deg * PI / 180.0
+pub fn clamp_repeating(x: f64) -> f64 {
+    let mut rem = x % 1.0;
+    
+    if rem < 0.0 {
+        rem += 1.0;
+    }
+    
+    rem
 }
