@@ -1,9 +1,11 @@
 [package]
 name = "raytracer"
 version = "0.1.0"
+authors = ["milan <milan@milan.wtf>"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Homebrew raytracer."
+repository = "https://github.com/m-vz/raytracer"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 rand = "0.8.5"
