@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
+use std::vec::IntoIter;
 
 use float_cmp::{ApproxEq, F64Margin};
 
@@ -288,6 +289,15 @@ impl ApproxEq for Vec3 {
         self.0.approx_ne(other.0, margin)
             && self.1.approx_ne(other.1, margin)
             && self.2.approx_ne(other.2, margin)
+    }
+}
+
+impl IntoIterator for Vec3 {
+    type Item = f64;
+    type IntoIter = IntoIter<f64>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        vec![self.0, self.1, self.2].into_iter()
     }
 }
 
