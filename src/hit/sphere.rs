@@ -65,11 +65,8 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn center_at_time(&self, time: f64) -> Vec3 {
-        if let Some(movement) = self.movement {
-            self.center + time * movement
-        } else {
-            self.center
-        }
+        self.movement
+            .map_or(self.center, |movement| self.center + time * movement)
     }
 
     fn uv(point: &Vec3) -> (f64, f64) {

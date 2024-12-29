@@ -3,8 +3,8 @@ use std::fs::{create_dir_all, File};
 use std::io::{BufReader, Write};
 use std::path::Path;
 
-use image::{ImageBuffer, Rgb};
 use image::codecs::hdr::HdrDecoder;
+use image::{ImageBuffer, Rgb};
 
 use crate::color::Color;
 use crate::math;
@@ -54,14 +54,12 @@ impl Image {
     pub fn load<P: AsRef<Path>>(path: P) -> Self {
         let width: u32;
         let height: u32;
-        let data: Vec<Color>;
-
-        if path.as_ref().extension() == Some(OsStr::new("hdr")) {
+        let data = if path.as_ref().extension() == Some(OsStr::new("hdr")) {
             let file = File::open(&path).expect("Failed to open image");
             let decoder = HdrDecoder::new(BufReader::new(file)).expect("Failed to read hdr image");
             width = decoder.metadata().width;
             height = decoder.metadata().height;
-            data = decoder
+            decoder
                 .read_image_hdr()
                 .expect("Failed to read image")
                 .into_iter()
@@ -77,12 +75,12 @@ impl Image {
             let image = image::open(path).expect("Failed to open image");
             width = image.width();
             height = image.height();
-            data = image
+            image
                 .into_rgb8()
                 .enumerate_pixels()
                 .map(|(_, _, pixel)| Color::from(*pixel))
-                .collect();
-        }
+                .collect()
+        };
 
         Self {
             width,
@@ -105,7 +103,7 @@ impl Image {
         #[allow(clippy::cast_precision_loss)]
         data.iter_mut().enumerate().for_each(|(i, pixel)| {
             for image in images {
-                *pixel += image.data[i]
+                *pixel += image.data[i];
             }
             *pixel /= images.len() as f64;
         });

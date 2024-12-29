@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["milan <milan@milan.wtf>"]
 edition = "2021"
 description = "Homebrew raytracer."
+keywords = ["graphics", "raytracing", "rendering", "3d", "cpu"]
+categories = ["rendering", "graphics", "multimedia::images"]
 repository = "https://github.com/m-vz/raytracer"
 license = "MIT OR Apache-2.0"
 

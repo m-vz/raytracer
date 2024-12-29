@@ -139,7 +139,7 @@ impl Hit for RotationY {
 
             Some(hit)
         } else {
-            return None;
+            None
         }
     }
 

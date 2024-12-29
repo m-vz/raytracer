@@ -88,11 +88,10 @@ impl Hit for Node {
         let right = self.right.hit(
             ray,
             Interval(
-                t_interval.start()..if let Some(left) = &left {
-                    left.t
-                } else {
-                    t_interval.end()
-                },
+                t_interval.start()
+                    ..left
+                        .as_ref()
+                        .map_or_else(|| t_interval.end(), |left| left.t),
             ),
         );
 

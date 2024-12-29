@@ -1,3 +1,6 @@
+#![warn(clippy::all, clippy::pedantic, clippy::nursery, clippy::cargo)]
+#![allow(clippy::module_name_repetitions)]
+
 use std::sync::Arc;
 
 use camera::CameraBuilder;
@@ -6,12 +9,12 @@ use crate::background::background_color::BackgroundColor;
 use crate::background::hdri::Hdri;
 use crate::camera::Camera;
 use crate::color::Color;
-use crate::hit::Hit;
 use crate::hit::bvh::Node;
 use crate::hit::quad::Quad;
 use crate::hit::r#box::Box;
 use crate::hit::sphere::SphereBuilder;
 use crate::hit::transform::{RotationY, Translation};
+use crate::hit::Hit;
 use crate::image::Image;
 use crate::material::dielectric::Dielectric;
 use crate::material::lambertian::Lambertian;

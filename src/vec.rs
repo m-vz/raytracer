@@ -321,7 +321,7 @@ mod tests {
 
         assert_approx_eq!(Vec3, v.normalized(), Vec3(1.0, 0.0, 0.0));
         v.normalize();
-        assert_approx_eq!(Vec3, v, Vec3(1.0, 0.0, 0.0))
+        assert_approx_eq!(Vec3, v, Vec3(1.0, 0.0, 0.0));
     }
 
     #[test]

@@ -42,11 +42,10 @@ impl Hit for Scene {
             if let Some(hit) = object.hit(
                 ray,
                 Interval(
-                    t_interval.start()..if let Some(hit) = &closest_hit {
-                        hit.t
-                    } else {
-                        t_interval.end()
-                    },
+                    t_interval.start()
+                        ..closest_hit
+                            .as_ref()
+                            .map_or_else(|| t_interval.end(), |hit| hit.t),
                 ),
             ) {
                 closest_hit = Some(hit);

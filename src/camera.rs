@@ -18,7 +18,9 @@ const BIAS: f64 = 0.001;
 
 #[derive(Debug)]
 pub enum CameraError {
+    #[allow(dead_code)] // can be removed as soon as this error is logged correctly
     IOError(io::Error),
+    #[allow(dead_code)] // can be removed as soon as this error is logged correctly
     Averaging(ImageError),
 }
 
