@@ -7,9 +7,9 @@ use crate::background::hdri::Hdri;
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hit::Hit;
-use crate::hit::r#box::BoxBuilder;
 use crate::hit::bvh::Node;
 use crate::hit::quad::Quad;
+use crate::hit::r#box::Box;
 use crate::hit::sphere::SphereBuilder;
 use crate::hit::transform::{RotationY, Translation};
 use crate::image::Image;
@@ -95,9 +95,7 @@ fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
             // tall box
             Arc::new(Translation::new(
                 Arc::new(RotationY::new(
-                    Arc::new(
-                        BoxBuilder::new(Vec3::zero(), Vec3(1.65, 3.3, 1.65), white.clone()).build(),
-                    ),
+                    Arc::new(Box::new(Vec3::zero(), Vec3(1.65, 3.3, 1.65), white.clone())),
                     15.0,
                 )),
                 Vec3(2.65, 0.0, 2.95),
@@ -105,7 +103,7 @@ fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
             // small box
             Arc::new(Translation::new(
                 Arc::new(RotationY::new(
-                    Arc::new(BoxBuilder::new(Vec3::zero(), Vec3(1.65, 1.65, 1.65), white).build()),
+                    Arc::new(Box::new(Vec3::zero(), Vec3(1.65, 1.65, 1.65), white)),
                     -18.0,
                 )),
                 Vec3(1.3, 0.0, 0.65),
@@ -163,19 +161,18 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
             )),
             Arc::new(Translation::new(
                 Arc::new(RotationY::new(
-                    Arc::new(
-                        BoxBuilder::new(Vec3::zero(), Vec3(165.0, 330.0, 165.0), white.clone())
-                            .build(),
-                    ),
+                    Arc::new(Box::new(
+                        Vec3::zero(),
+                        Vec3(165.0, 330.0, 165.0),
+                        white.clone(),
+                    )),
                     15.0,
                 )),
                 Vec3(265.0, 0.0, 295.0),
             )),
             Arc::new(Translation::new(
                 Arc::new(RotationY::new(
-                    Arc::new(
-                        BoxBuilder::new(Vec3::zero(), Vec3(165.0, 165.0, 165.0), white).build(),
-                    ),
+                    Arc::new(Box::new(Vec3::zero(), Vec3(165.0, 165.0, 165.0), white)),
                     -18.0,
                 )),
                 Vec3(130.0, 0.0, 65.0),

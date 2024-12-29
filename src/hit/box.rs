@@ -9,22 +9,15 @@ use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
-pub struct BoxBuilder {
-    pub a: Vec3,
-    pub b: Vec3,
-    pub material: Arc<dyn Material>,
+pub struct Box {
+    sides: Node,
 }
 
-impl BoxBuilder {
+impl Box {
     pub fn new(a: Vec3, b: Vec3, material: Arc<dyn Material>) -> Self {
-        Self { a, b, material }
-    }
+        let size = b - a;
 
-    pub fn build(self) -> Box {
-        let size = self.b - self.a;
-
-        Box {
-            material: self.material.clone(),
+        Self {
             sides: Node::new(vec![
                 // front
                 Arc::new(Quad::new(a, size.x(), size.y(), material.clone())),
@@ -61,11 +54,6 @@ impl BoxBuilder {
             ]),
         }
     }
-}
-
-pub struct Box {
-    pub material: Arc<dyn Material>,
-    sides: Node,
 }
 
 impl Hit for Box {
