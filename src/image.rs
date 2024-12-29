@@ -32,7 +32,8 @@ pub struct Image {
 #[allow(dead_code)]
 impl Image {
     pub fn with_aspect_ratio(width: u32, aspect_ratio: f64, color: Color) -> Self {
-        let height = (width as f64 / aspect_ratio) as u32;
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let height = (f64::from(width) / aspect_ratio) as u32;
 
         Self::with_dimensions(width, height, color)
     }
@@ -62,8 +63,14 @@ impl Image {
                 .read_image_hdr()
                 .expect("Failed to read image")
                 .into_iter()
-                .map(|pixel| Color::new(pixel.0[0] as f64, pixel.0[1] as f64, pixel.0[2] as f64))
-                .collect();
+                .map(|pixel| {
+                    Color::new(
+                        f64::from(pixel.0[0]),
+                        f64::from(pixel.0[1]),
+                        f64::from(pixel.0[2]),
+                    )
+                })
+                .collect()
         } else {
             let image = image::open(path).expect("Failed to open image");
             width = image.width();
@@ -93,6 +100,7 @@ impl Image {
 
         let mut data = vec![Color::black(); pixel_count];
 
+        #[allow(clippy::cast_precision_loss)]
         data.iter_mut().enumerate().for_each(|(i, pixel)| {
             for image in images {
                 *pixel += image.data[i]
@@ -124,7 +132,7 @@ impl Image {
     }
 
     pub fn aspect(&self) -> f64 {
-        self.width as f64 / self.height as f64
+        f64::from(self.width) / f64::from(self.height)
     }
 
     pub fn set_pixel(&mut self, x: u32, y: u32, value: Color) {
@@ -136,9 +144,10 @@ impl Image {
     }
 
     pub fn get_pixel_by_uv(&self, u: f64, v: f64) -> Color {
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         self.get_pixel(
-            (math::clamp_repeating(u) * self.width as f64) as u32,
-            ((1.0 - math::clamp_repeating(v)) * self.height as f64) as u32,
+            (math::clamp_repeating(u) * f64::from(self.width)) as u32,
+            ((1.0 - math::clamp_repeating(v)) * f64::from(self.height)) as u32,
         )
     }
 

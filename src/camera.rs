@@ -175,10 +175,11 @@ impl Camera {
 
                 self.target.set_pixel(x, y, color.clamped());
 
+                #[allow(clippy::cast_precision_loss)]
                 if log {
                     print!(
                         "\rprogress: {:.2}%",
-                        (y * self.target.width() + x) as f64 * 100.0
+                        f64::from(y * self.target.width() + x) * 100.0
                             / self.target.pixel_count() as f64
                     );
                 }

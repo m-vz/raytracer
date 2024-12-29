@@ -137,6 +137,7 @@ impl DivAssign<f64> for Color {
 }
 
 impl Display for Color {
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -151,9 +152,9 @@ impl Display for Color {
 impl From<(u8, u8, u8)> for Color {
     fn from(value: (u8, u8, u8)) -> Self {
         Self::new(
-            value.0 as f64 / 255.0,
-            value.1 as f64 / 255.0,
-            value.2 as f64 / 255.0,
+            f64::from(value.0) / 255.0,
+            f64::from(value.1) / 255.0,
+            f64::from(value.2) / 255.0,
         )
     }
 }
@@ -165,6 +166,7 @@ impl From<Vec3> for Color {
 }
 
 impl From<Color> for Rgb<u8> {
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn from(value: Color) -> Self {
         let clamped = value.clamped();
         Self([
@@ -178,9 +180,9 @@ impl From<Color> for Rgb<u8> {
 impl From<Rgb<u8>> for Color {
     fn from(value: Rgb<u8>) -> Self {
         Self(Vec3(
-            value.0[0] as f64 / 255.0,
-            value.0[1] as f64 / 255.0,
-            value.0[2] as f64 / 255.0,
+            f64::from(value.0[0]) / 255.0,
+            f64::from(value.0[1]) / 255.0,
+            f64::from(value.0[2]) / 255.0,
         ))
     }
 }

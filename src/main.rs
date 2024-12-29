@@ -400,7 +400,7 @@ fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
             for x in -2..=2 {
                 spheres.push(Arc::new(
                     SphereBuilder::new(
-                        Vec3(x as f64 * 0.5, y as f64 * 0.5, z as f64),
+                        Vec3(f64::from(x) * 0.5, f64::from(y) * 0.5, f64::from(z)),
                         0.2,
                         if z == 2 && y == 0 && x == 0 {
                             Arc::new(Dielectric {

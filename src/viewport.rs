@@ -35,7 +35,10 @@ impl Viewport {
         right: Vec3,
         down: Vec3,
     ) -> Self {
-        let pixel_size = (size.0 / resolution.0 as f64, size.1 / resolution.1 as f64);
+        let pixel_size = (
+            size.0 / f64::from(resolution.0),
+            size.1 / f64::from(resolution.1),
+        );
 
         Self {
             width: size.0,
@@ -56,9 +59,9 @@ impl Viewport {
     ) -> Vec3 {
         self.origin
             + self.pixel_size.0
-                * (x as f64 + subpixel_scale * (sample_x as f64 + rand::random::<f64>()))
+                * subpixel_scale.mul_add(f64::from(sample_x) + rand::random::<f64>(), f64::from(x))
             + self.pixel_size.1
-                * (y as f64 + subpixel_scale * (sample_y as f64 + rand::random::<f64>()))
+                * subpixel_scale.mul_add(f64::from(sample_y) + rand::random::<f64>(), f64::from(y))
     }
 
     pub const fn pixel_size(&self) -> (Vec3, Vec3) {

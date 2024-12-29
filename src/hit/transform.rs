@@ -68,9 +68,12 @@ impl RotationY {
             for y in 0..2 {
                 for z in 0..2 {
                     let mut test = Vec3(
-                        x as f64 * bounding_box.0.end() + (1 - x) as f64 * bounding_box.0.start(),
-                        y as f64 * bounding_box.1.end() + (1 - y) as f64 * bounding_box.1.start(),
-                        z as f64 * bounding_box.2.end() + (1 - z) as f64 * bounding_box.2.start(),
+                        f64::from(x) * bounding_box.0.end()
+                            + f64::from(1 - x) * bounding_box.0.start(),
+                        f64::from(y) * bounding_box.1.end()
+                            + f64::from(1 - y) * bounding_box.1.start(),
+                        f64::from(z) * bounding_box.2.end()
+                            + f64::from(1 - z) * bounding_box.2.start(),
                     );
 
                     test.0 = cos_angle * test.0 + sin_angle * test.2;
