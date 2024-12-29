@@ -36,9 +36,9 @@ impl Vec3 {
         let scale = range.end - range.start;
 
         Self(
-            range.start + scale * rand::random::<f64>(),
-            range.start + scale * rand::random::<f64>(),
-            range.start + scale * rand::random::<f64>(),
+            scale.mul_add(rand::random::<f64>(), range.start),
+            scale.mul_add(rand::random::<f64>(), range.start),
+            scale.mul_add(rand::random::<f64>(), range.start),
         )
     }
 
@@ -124,7 +124,8 @@ impl Vec3 {
     }
 
     pub fn len_sq(&self) -> f64 {
-        self.0 * self.0 + self.1 * self.1 + self.2 * self.2
+        self.0
+            .mul_add(self.0, self.1.mul_add(self.1, self.2 * self.2))
     }
 
     pub fn normalized(&self) -> Self {
@@ -136,14 +137,14 @@ impl Vec3 {
     }
 
     pub fn dot(&self, rhs: &Self) -> f64 {
-        self.0 * rhs.0 + self.1 * rhs.1 + self.2 * rhs.2
+        self.0.mul_add(rhs.0, self.1.mul_add(rhs.1, self.2 * rhs.2))
     }
 
     pub fn cross(&self, rhs: &Self) -> Self {
         Self(
-            self.1 * rhs.2 - self.2 * rhs.1,
-            self.2 * rhs.0 - self.0 * rhs.2,
-            self.0 * rhs.1 - self.1 * rhs.0,
+            self.1.mul_add(rhs.2, -(self.2 * rhs.1)),
+            self.2.mul_add(rhs.0, -(self.0 * rhs.2)),
+            self.0.mul_add(rhs.1, -(self.1 * rhs.0)),
         )
     }
 

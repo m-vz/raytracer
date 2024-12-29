@@ -86,8 +86,9 @@ impl Hit for Sphere {
         let oc = ray.origin - center;
         let a = ray.direction.len_sq();
         let half_b = oc.dot(&ray.direction);
-        let c = oc.len_sq() - self.radius * self.radius;
-        let discriminant = half_b * half_b - a * c;
+        let half_b_sq = half_b * half_b;
+        let c = self.radius.mul_add(-self.radius, oc.len_sq());
+        let discriminant = a.mul_add(-c, half_b_sq);
 
         if discriminant < 0.0 {
             return None;

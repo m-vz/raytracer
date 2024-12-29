@@ -68,16 +68,22 @@ impl RotationY {
             for y in 0..2 {
                 for z in 0..2 {
                     let mut test = Vec3(
-                        f64::from(x) * bounding_box.0.end()
-                            + f64::from(1 - x) * bounding_box.0.start(),
-                        f64::from(y) * bounding_box.1.end()
-                            + f64::from(1 - y) * bounding_box.1.start(),
-                        f64::from(z) * bounding_box.2.end()
-                            + f64::from(1 - z) * bounding_box.2.start(),
+                        f64::from(x).mul_add(
+                            bounding_box.0.end(),
+                            f64::from(1 - x) * bounding_box.0.start(),
+                        ),
+                        f64::from(y).mul_add(
+                            bounding_box.1.end(),
+                            f64::from(1 - y) * bounding_box.1.start(),
+                        ),
+                        f64::from(z).mul_add(
+                            bounding_box.2.end(),
+                            f64::from(1 - z) * bounding_box.2.start(),
+                        ),
                     );
 
-                    test.0 = cos_angle * test.0 + sin_angle * test.2;
-                    test.2 = -sin_angle * test.0 + cos_angle * test.2;
+                    test.0 = cos_angle.mul_add(test.0, sin_angle * test.2);
+                    test.2 = (-sin_angle).mul_add(test.0, cos_angle * test.2);
 
                     for i in 0..3 {
                         min.set_axis(i, min.axis(i).min(test.axis(i)));
@@ -100,14 +106,18 @@ impl Hit for RotationY {
     fn hit(&self, ray: &Ray, t_interval: Interval) -> Option<HitResult> {
         let ray_object_space = Ray {
             origin: Vec3(
-                self.cos_angle * ray.origin.0 - self.sin_angle * ray.origin.2,
+                self.cos_angle
+                    .mul_add(ray.origin.0, -(self.sin_angle * ray.origin.2)),
                 ray.origin.1,
-                self.sin_angle * ray.origin.0 + self.cos_angle * ray.origin.2,
+                self.sin_angle
+                    .mul_add(ray.origin.0, self.cos_angle * ray.origin.2),
             ),
             direction: Vec3(
-                self.cos_angle * ray.direction.0 - self.sin_angle * ray.direction.2,
+                self.cos_angle
+                    .mul_add(ray.direction.0, -(self.sin_angle * ray.direction.2)),
                 ray.direction.1,
-                self.sin_angle * ray.direction.0 + self.cos_angle * ray.direction.2,
+                self.sin_angle
+                    .mul_add(ray.direction.0, self.cos_angle * ray.direction.2),
             ),
             time: ray.time,
         }; // ray into object space
@@ -115,14 +125,16 @@ impl Hit for RotationY {
 
         if let Some(mut hit) = hit {
             hit.point = Vec3(
-                self.cos_angle * hit.point.0 + self.sin_angle * hit.point.2,
+                self.cos_angle
+                    .mul_add(hit.point.0, self.sin_angle * hit.point.2),
                 hit.point.1,
-                -self.sin_angle * hit.point.0 + self.cos_angle * hit.point.2,
+                (-self.sin_angle).mul_add(hit.point.0, self.cos_angle * hit.point.2),
             ); // intersection point into world space
             hit.normal = Vec3(
-                self.cos_angle * hit.normal.0 + self.sin_angle * hit.normal.2,
+                self.cos_angle
+                    .mul_add(hit.normal.0, self.sin_angle * hit.normal.2),
                 hit.normal.1,
-                -self.sin_angle * hit.normal.0 + self.cos_angle * hit.normal.2,
+                (-self.sin_angle).mul_add(hit.normal.0, self.cos_angle * hit.normal.2),
             ); // normal into world space
 
             Some(hit)
