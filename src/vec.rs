@@ -73,10 +73,6 @@ impl Vec3 {
         }
     }
 
-    pub fn copy(&self) -> Self {
-        Self(self.0, self.1, self.2)
-    }
-
     pub fn axis(&self, n: u32) -> f64 {
         match n {
             0 => self.0,
@@ -129,7 +125,7 @@ impl Vec3 {
     }
 
     pub fn normalized(&self) -> Self {
-        self.copy() / self.len()
+        *self / self.len()
     }
 
     pub fn normalize(&mut self) {
