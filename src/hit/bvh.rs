@@ -8,13 +8,13 @@ use crate::math::aabb::Aabb;
 use crate::math::interval::Interval;
 use crate::ray::Ray;
 
-pub struct BvhNode {
+pub struct Node {
     left: Arc<dyn Hit>,
     right: Arc<dyn Hit>,
     bounding_box: Aabb,
 }
 
-impl BvhNode {
+impl Node {
     pub fn new(mut objects: Vec<Arc<dyn Hit>>) -> Self {
         let axis = rand::thread_rng().gen_range(0..3);
         let comparator = match axis {
@@ -78,7 +78,7 @@ impl BvhNode {
     }
 }
 
-impl Hit for BvhNode {
+impl Hit for Node {
     fn hit(&self, ray: &Ray, mut t_interval: Interval) -> Option<HitResult> {
         if !self.bounding_box.hit(ray, &mut t_interval) {
             return None;

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::hit::bvh::BvhNode;
+use crate::hit::bvh::Node;
 use crate::hit::quad::Quad;
 use crate::hit::{Hit, HitResult};
 use crate::material::Material;
@@ -25,7 +25,7 @@ impl BoxBuilder {
 
         Box {
             material: self.material.clone(),
-            sides: BvhNode::new(vec![
+            sides: Node::new(vec![
                 // front
                 Arc::new(Quad::new(a, size.x(), size.y(), material.clone())),
                 // right
@@ -65,7 +65,7 @@ impl BoxBuilder {
 
 pub struct Box {
     pub material: Arc<dyn Material>,
-    sides: BvhNode,
+    sides: Node,
 }
 
 impl Hit for Box {
