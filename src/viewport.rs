@@ -61,7 +61,7 @@ impl Viewport {
                 * (y as f64 + subpixel_scale * (sample_y as f64 + rand::random::<f64>()))
     }
 
-    pub fn pixel_size(&self) -> (Vec3, Vec3) {
+    pub const fn pixel_size(&self) -> (Vec3, Vec3) {
         self.pixel_size
     }
 }

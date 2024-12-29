@@ -8,23 +8,23 @@ pub struct Vec3(pub f64, pub f64, pub f64);
 
 #[allow(dead_code)]
 impl Vec3 {
-    pub fn zero() -> Self {
+    pub const fn zero() -> Self {
         Self(0.0, 0.0, 0.0)
     }
 
-    pub fn unit() -> Self {
+    pub const fn unit() -> Self {
         Self(1.0, 1.0, 1.0)
     }
 
-    pub fn right() -> Self {
+    pub const fn right() -> Self {
         Self(1.0, 0.0, 0.0)
     }
 
-    pub fn up() -> Self {
+    pub const fn up() -> Self {
         Self(0.0, 1.0, 0.0)
     }
 
-    pub fn forward() -> Self {
+    pub const fn forward() -> Self {
         Self(0.0, 0.0, -1.0)
     }
 
@@ -95,28 +95,28 @@ impl Vec3 {
         }
     }
 
-    pub fn x(&self) -> Vec3 {
         Vec3(self.0, 0.0, 0.0)
+    pub const fn x(&self) -> Self {
     }
 
-    pub fn y(&self) -> Vec3 {
         Vec3(0.0, self.1, 0.0)
+    pub const fn y(&self) -> Self {
     }
 
-    pub fn z(&self) -> Vec3 {
         Vec3(0.0, 0.0, self.2)
+    pub const fn z(&self) -> Self {
     }
 
-    pub fn xy(&self) -> Vec3 {
         Vec3(self.0, self.1, 0.0)
+    pub const fn xy(&self) -> Self {
     }
 
-    pub fn xz(&self) -> Vec3 {
         Vec3(self.0, 0.0, self.2)
+    pub const fn xz(&self) -> Self {
     }
 
-    pub fn yz(&self) -> Vec3 {
         Vec3(0.0, self.1, self.2)
+    pub const fn yz(&self) -> Self {
     }
 
     pub fn len(&self) -> f64 {

@@ -107,11 +107,11 @@ impl Image {
         })
     }
 
-    pub fn width(&self) -> u32 {
+    pub const fn width(&self) -> u32 {
         self.width
     }
 
-    pub fn height(&self) -> u32 {
+    pub const fn height(&self) -> u32 {
         self.height
     }
 
@@ -119,7 +119,7 @@ impl Image {
         self.data.len()
     }
 
-    pub fn resolution(&self) -> (u32, u32) {
+    pub const fn resolution(&self) -> (u32, u32) {
         (self.width, self.height)
     }
 

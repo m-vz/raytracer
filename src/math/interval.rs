@@ -5,11 +5,11 @@ use std::ops::{Add, Range, RangeBounds};
 pub struct Interval(pub Range<f64>);
 
 impl Interval {
-    pub fn start(&self) -> f64 {
+    pub const fn start(&self) -> f64 {
         self.0.start
     }
 
-    pub fn end(&self) -> f64 {
+    pub const fn end(&self) -> f64 {
         self.0.end
     }
 

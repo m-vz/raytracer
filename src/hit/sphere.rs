@@ -27,7 +27,7 @@ impl SphereBuilder {
         }
     }
 
-    pub fn with_movement(mut self, movement: Vec3) -> Self {
+    pub const fn with_movement(mut self, movement: Vec3) -> Self {
         self.movement = Some(movement);
 
         self
