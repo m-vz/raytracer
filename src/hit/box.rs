@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::hit::bvh::BvhNode;
-use crate::hit::quad::QuadBuilder;
+use crate::hit::quad::Quad;
 use crate::hit::{Hit, HitResult};
 use crate::material::Material;
 use crate::math::aabb::Aabb;
@@ -27,43 +27,37 @@ impl BoxBuilder {
             material: self.material.clone(),
             sides: BvhNode::new(vec![
                 // front
-                Arc::new(
-                    QuadBuilder::new(self.a, size.x(), size.y(), self.material.clone()).build(),
-                ),
+                Arc::new(Quad::new(a, size.x(), size.y(), material.clone())),
                 // right
-                Arc::new(
-                    QuadBuilder::new(self.a + size.x(), size.z(), size.y(), self.material.clone())
-                        .build(),
-                ),
+                Arc::new(Quad::new(
+                    a + size.x(),
+                    size.z(),
+                    size.y(),
+                    material.clone(),
+                )),
                 // back
-                Arc::new(
-                    QuadBuilder::new(
-                        self.a + size.xz(),
-                        -size.x(),
-                        size.y(),
-                        self.material.clone(),
-                    )
-                    .build(),
-                ),
+                Arc::new(Quad::new(
+                    a + size.xz(),
+                    -size.x(),
+                    size.y(),
+                    material.clone(),
+                )),
                 // left
-                Arc::new(
-                    QuadBuilder::new(
-                        self.a + size.z(),
-                        -size.z(),
-                        size.y(),
-                        self.material.clone(),
-                    )
-                    .build(),
-                ),
+                Arc::new(Quad::new(
+                    a + size.z(),
+                    -size.z(),
+                    size.y(),
+                    material.clone(),
+                )),
                 // top
-                Arc::new(
-                    QuadBuilder::new(self.a + size.y(), size.x(), size.z(), self.material.clone())
-                        .build(),
-                ),
+                Arc::new(Quad::new(
+                    a + size.y(),
+                    size.x(),
+                    size.z(),
+                    material.clone(),
+                )),
                 // bottom
-                Arc::new(
-                    QuadBuilder::new(self.a + size.z(), size.x(), -size.z(), self.material).build(),
-                ),
+                Arc::new(Quad::new(a + size.z(), size.x(), -size.z(), material)),
             ]),
         }
     }

@@ -8,8 +8,8 @@ use crate::camera::Camera;
 use crate::color::Color;
 use crate::hit::bvh::BvhNode;
 use crate::hit::Hit;
-use crate::hit::quad::QuadBuilder;
 use crate::hit::r#box::BoxBuilder;
+use crate::hit::quad::Quad;
 use crate::hit::sphere::SphereBuilder;
 use crate::hit::transform::{RotationY, Translation};
 use crate::image::Image;
@@ -65,45 +65,33 @@ fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
             ))
             .build(image),
             // left
-            Arc::new(
-                QuadBuilder::new(
-                    a * Vec3::right(),
-                    a * -Vec3::forward(),
-                    a * Vec3::up(),
-                    Arc::new(Lambertian::colored(Color::new(0.12, 0.45, 0.15))),
-                )
-                .build(),
-            ),
+            Arc::new(Quad::new(
+                a * Vec3::right(),
+                a * -Vec3::forward(),
+                a * Vec3::up(),
+                Arc::new(Lambertian::colored(Color::new(0.12, 0.45, 0.15))),
+            )),
             // right
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3::zero(),
-                    a * -Vec3::forward(),
-                    a * Vec3::up(),
-                    Arc::new(Lambertian::colored(Color::new(0.65, 0.05, 0.05))),
-                )
-                .build(),
-            ),
+            Arc::new(Quad::new(
+                Vec3::zero(),
+                a * -Vec3::forward(),
+                a * Vec3::up(),
+                Arc::new(Lambertian::colored(Color::new(0.65, 0.05, 0.05))),
+            )),
             // bottom
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3::zero(),
-                    a * Vec3::right(),
-                    a * -Vec3::forward(),
-                    white.clone(),
-                )
-                .build(),
-            ),
+            Arc::new(Quad::new(
+                Vec3::zero(),
+                a * Vec3::right(),
+                a * -Vec3::forward(),
+                white.clone(),
+            )),
             // top
-            Arc::new(
-                QuadBuilder::new(
-                    a * Vec3::up(),
-                    a * Vec3::right(),
-                    a * -Vec3::forward(),
-                    white.clone(),
-                )
-                .build(),
-            ),
+            Arc::new(Quad::new(
+                a * Vec3::up(),
+                a * Vec3::right(),
+                a * -Vec3::forward(),
+                white.clone(),
+            )),
             // tall box
             Arc::new(Translation::new(
                 Arc::new(RotationY::new(
@@ -133,64 +121,46 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
 
     (
         Arc::new(BvhNode::new(vec![
-            Arc::new(
-                QuadBuilder::new(
-                    a * Vec3::right(),
-                    a * Vec3::up(),
-                    a * -Vec3::forward(),
-                    Arc::new(Lambertian::colored(Color::new(0.12, 0.45, 0.15))),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3::zero(),
-                    a * Vec3::up(),
-                    a * -Vec3::forward(),
-                    Arc::new(Lambertian::colored(Color::new(0.65, 0.05, 0.05))),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3(343.0, 554.0, 332.0),
-                    Vec3(-130.0, 0.0, 0.0),
-                    Vec3(0.0, 0.0, -105.0),
-                    Arc::new(DiffuseLight::colored(Color::new(15.0, 15.0, 15.0))),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3::zero(),
-                    a * Vec3::right(),
-                    a * -Vec3::forward(),
-                    white.clone(),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    a * Vec3::unit(),
-                    a * -Vec3::right(),
-                    a * Vec3::forward(),
-                    white.clone(),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    a * -Vec3::forward(),
-                    a * Vec3::right(),
-                    a * Vec3::up(),
-                    white.clone(),
-                )
-                .build(),
-            ),
         CameraBuilder::new(800.0, 0.0, 40.0)
             .with_position(Vec3(278.0, 278.0, -800.0))
             .with_forward(-Vec3::forward())
             .build(image),
+            Arc::new(Quad::new(
+                a * Vec3::right(),
+                a * Vec3::up(),
+                a * -Vec3::forward(),
+                Arc::new(Lambertian::colored(Color::new(0.12, 0.45, 0.15))),
+            )),
+            Arc::new(Quad::new(
+                Vec3::zero(),
+                a * Vec3::up(),
+                a * -Vec3::forward(),
+                Arc::new(Lambertian::colored(Color::new(0.65, 0.05, 0.05))),
+            )),
+            Arc::new(Quad::new(
+                Vec3(343.0, 554.0, 332.0),
+                Vec3(-130.0, 0.0, 0.0),
+                Vec3(0.0, 0.0, -105.0),
+                Arc::new(DiffuseLight::colored(Color::new(15.0, 15.0, 15.0))),
+            )),
+            Arc::new(Quad::new(
+                Vec3::zero(),
+                a * Vec3::right(),
+                a * -Vec3::forward(),
+                white.clone(),
+            )),
+            Arc::new(Quad::new(
+                a * Vec3::unit(),
+                a * -Vec3::right(),
+                a * Vec3::forward(),
+                white.clone(),
+            )),
+            Arc::new(Quad::new(
+                a * -Vec3::forward(),
+                a * Vec3::right(),
+                a * Vec3::up(),
+                white.clone(),
+            )),
             Arc::new(Translation::new(
                 Arc::new(RotationY::new(
                     Arc::new(
@@ -248,15 +218,12 @@ fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
                 )
                 .build(),
             ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3(1.0, 0.0, -3.0),
-                    4.0 * Vec3::right(),
-                    4.0 * Vec3::up(),
-                    Arc::new(DiffuseLight::colored(Color::new(4.0, 0.1, 0.1))),
-                )
-                .build(),
-            ),
+            Arc::new(Quad::new(
+                Vec3(1.0, 0.0, -3.0),
+                4.0 * Vec3::right(),
+                4.0 * Vec3::up(),
+                Arc::new(DiffuseLight::colored(Color::new(4.0, 0.1, 0.1))),
+            )),
         ])),
     )
 }
@@ -265,66 +232,51 @@ fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
 fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
     (
         Arc::new(BvhNode::new(vec![
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3(-3.0, -2.0, 5.0),
-                    4.0 * Vec3::forward(),
-                    4.0 * Vec3::up(),
-                    Arc::new(Lambertian {
-                        texture: Arc::new(SolidColor::new(1.0, 0.2, 0.2)),
-                    }),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3(-2.0, -2.0, 0.0),
-                    4.0 * Vec3::right(),
-                    4.0 * Vec3::up(),
-                    Arc::new(Lambertian {
-                        texture: Arc::new(SolidColor::new(0.2, 1.0, 0.2)),
-                    }),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3(3.0, -2.0, 1.0),
-                    -4.0 * Vec3::forward(),
-                    4.0 * Vec3::up(),
-                    Arc::new(Lambertian {
-                        texture: Arc::new(SolidColor::new(0.2, 0.2, 1.0)),
-                    }),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3(-2.0, 3.0, 1.0),
-                    4.0 * Vec3::right(),
-                    -4.0 * Vec3::forward(),
-                    Arc::new(Lambertian {
-                        texture: Arc::new(SolidColor::new(1.0, 0.5, 0.0)),
-                    }),
-                )
-                .build(),
-            ),
-            Arc::new(
-                QuadBuilder::new(
-                    Vec3(-2.0, -3.0, 5.0),
-                    4.0 * Vec3::right(),
-                    4.0 * Vec3::forward(),
-                    Arc::new(Lambertian {
-                        texture: Arc::new(SolidColor::new(0.2, 0.8, 0.8)),
-                    }),
-                )
-                .build(),
-            ),
         CameraBuilder::new(9.0, 0.0, 80.0)
             .with_position(Vec3(0.0, 0.0, 9.0))
             .with_background(BackgroundColor::new(0.7, 0.8, 1.0))
             .look_at(Vec3::zero())
             .build(image),
+            Arc::new(Quad::new(
+                Vec3(-3.0, -2.0, 5.0),
+                4.0 * Vec3::forward(),
+                4.0 * Vec3::up(),
+                Arc::new(Lambertian {
+                    texture: Arc::new(SolidColor::new(1.0, 0.2, 0.2)),
+                }),
+            )),
+            Arc::new(Quad::new(
+                Vec3(-2.0, -2.0, 0.0),
+                4.0 * Vec3::right(),
+                4.0 * Vec3::up(),
+                Arc::new(Lambertian {
+                    texture: Arc::new(SolidColor::new(0.2, 1.0, 0.2)),
+                }),
+            )),
+            Arc::new(Quad::new(
+                Vec3(3.0, -2.0, 1.0),
+                -4.0 * Vec3::forward(),
+                4.0 * Vec3::up(),
+                Arc::new(Lambertian {
+                    texture: Arc::new(SolidColor::new(0.2, 0.2, 1.0)),
+                }),
+            )),
+            Arc::new(Quad::new(
+                Vec3(-2.0, 3.0, 1.0),
+                4.0 * Vec3::right(),
+                -4.0 * Vec3::forward(),
+                Arc::new(Lambertian {
+                    texture: Arc::new(SolidColor::new(1.0, 0.5, 0.0)),
+                }),
+            )),
+            Arc::new(Quad::new(
+                Vec3(-2.0, -3.0, 5.0),
+                4.0 * Vec3::right(),
+                4.0 * Vec3::forward(),
+                Arc::new(Lambertian {
+                    texture: Arc::new(SolidColor::new(0.2, 0.8, 0.8)),
+                }),
+            )),
         ])),
     )
 }

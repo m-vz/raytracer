@@ -10,42 +10,6 @@ use crate::math::interval::Interval;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
-pub struct QuadBuilder {
-    pub origin: Vec3,
-    pub u: Vec3,
-    pub v: Vec3,
-    pub material: Arc<dyn Material>,
-}
-
-impl QuadBuilder {
-    pub fn new(origin: Vec3, u: Vec3, v: Vec3, material: Arc<dyn Material>) -> Self {
-        Self {
-            origin,
-            u,
-            v,
-            material,
-        }
-    }
-
-    pub fn build(self) -> Quad {
-        let mut normal = self.u.cross(&self.v);
-        let w = normal / normal.dot(&normal);
-        normal.normalize();
-
-        Quad {
-            origin: self.origin,
-            u: self.u,
-            v: self.v,
-            material: self.material,
-            bounding_box: Aabb::with_extrema(self.origin, self.origin + self.u + self.v)
-                .padded(0.0001),
-            normal,
-            d: normal.dot(&self.origin),
-            w,
-        }
-    }
-}
-
 pub struct Quad {
     pub origin: Vec3,
     pub u: Vec3,
@@ -55,6 +19,25 @@ pub struct Quad {
     normal: Vec3,
     d: f64,  // plane coefficient
     w: Vec3, // basis frame helper vector
+}
+
+impl Quad {
+    pub fn new(origin: Vec3, u: Vec3, v: Vec3, material: Arc<dyn Material>) -> Self {
+        let mut normal = u.cross(&v);
+        let w = normal / normal.dot(&normal);
+        normal.normalize();
+
+        Self {
+            origin,
+            u,
+            v,
+            material,
+            bounding_box: Aabb::with_extrema(origin, origin + u + v).padded(0.0001),
+            normal,
+            d: normal.dot(&origin),
+            w,
+        }
+    }
 }
 
 impl Hit for Quad {
