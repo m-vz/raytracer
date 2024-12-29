@@ -128,8 +128,8 @@ impl CameraBuilder {
             viewport,
             defocus_disk: (right * defocus_radius, up * defocus_radius),
             target,
-            samples: 9,
-            max_bounces: 50,
+            samples: self.samples,
+            max_bounces: self.max_bounces,
             background: self.background,
         }
     }
