@@ -59,7 +59,7 @@ impl Color {
 }
 
 impl Add for Color {
-    type Output = Color;
+    type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
         Self(self.0 + rhs.0)
@@ -73,7 +73,7 @@ impl AddAssign for Color {
 }
 
 impl Sub for Color {
-    type Output = Color;
+    type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self(self.0 - rhs.0)
@@ -87,7 +87,7 @@ impl SubAssign for Color {
 }
 
 impl Mul for Color {
-    type Output = Color;
+    type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
         Self(self.0 * rhs.0)
@@ -101,7 +101,7 @@ impl MulAssign for Color {
 }
 
 impl Mul<f64> for Color {
-    type Output = Color;
+    type Output = Self;
 
     fn mul(self, rhs: f64) -> Self::Output {
         Self(self.0 * rhs)
@@ -123,7 +123,7 @@ impl Mul<Color> for f64 {
 }
 
 impl Div<f64> for Color {
-    type Output = Color;
+    type Output = Self;
 
     fn div(self, rhs: f64) -> Self::Output {
         self * (1.0 / rhs)
@@ -167,7 +167,7 @@ impl From<Vec3> for Color {
 impl From<Color> for Rgb<u8> {
     fn from(value: Color) -> Self {
         let clamped = value.clamped();
-        Rgb([
+        Self([
             (clamped.0 .0 * 255.0) as u8,
             (clamped.0 .1 * 255.0) as u8,
             (clamped.0 .2 * 255.0) as u8,

@@ -51,21 +51,21 @@ impl Interval {
         Self(self.start() - half_delta..self.end() + half_delta)
     }
 
-    pub fn combine(&mut self, rhs: &Interval) {
+    pub fn combine(&mut self, rhs: &Self) {
         self.set_start(self.start().min(rhs.start()));
         self.set_end(self.end().max(rhs.end()));
     }
 
-    pub fn combined(&self, rhs: &Interval) -> Self {
+    pub fn combined(&self, rhs: &Self) -> Self {
         Self(self.start().min(rhs.start())..self.end().max(rhs.end()))
     }
 }
 
 impl Add<f64> for Interval {
-    type Output = Interval;
+    type Output = Self;
 
     fn add(self, rhs: f64) -> Self::Output {
-        Interval(self.0.start + rhs..self.0.end + rhs)
+        Self(self.0.start + rhs..self.0.end + rhs)
     }
 }
 

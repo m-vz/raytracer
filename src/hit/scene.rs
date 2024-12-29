@@ -26,8 +26,8 @@ impl SceneBuilder {
         self
     }
 
-    pub fn build(self) -> Scene {
-        Scene {
+    pub fn build(self) -> Self {
+        Self {
             objects: self.objects,
             bounding_box: self.bounding_box,
         }

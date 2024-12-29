@@ -45,14 +45,14 @@ impl Aabb {
         )
     }
 
-    pub fn combine(&mut self, rhs: &Aabb) {
+    pub fn combine(&mut self, rhs: &Self) {
         self.0.combine(&rhs.0);
         self.1.combine(&rhs.1);
         self.2.combine(&rhs.2);
     }
 
-    pub fn combined(&self, rhs: &Aabb) -> Self {
-        Aabb(
+    pub fn combined(&self, rhs: &Self) -> Self {
+        Self(
             self.0.combined(&rhs.0),
             self.1.combined(&rhs.1),
             self.2.combined(&rhs.2),
@@ -94,10 +94,10 @@ impl Aabb {
 }
 
 impl Add<Vec3> for Aabb {
-    type Output = Aabb;
+    type Output = Self;
 
     fn add(self, rhs: Vec3) -> Self::Output {
-        Aabb(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
+        Self(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
     }
 }
 

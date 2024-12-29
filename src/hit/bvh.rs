@@ -15,12 +15,12 @@ pub struct BvhNode {
 }
 
 impl BvhNode {
-    pub fn new(mut objects: Vec<Arc<dyn Hit>>) -> BvhNode {
+    pub fn new(mut objects: Vec<Arc<dyn Hit>>) -> Self {
         let axis = rand::thread_rng().gen_range(0..3);
         let comparator = match axis {
-            0 => BvhNode::box_compare_x,
-            1 => BvhNode::box_compare_y,
-            2 => BvhNode::box_compare_z,
+            0 => Self::box_compare_x,
+            1 => Self::box_compare_y,
+            2 => Self::box_compare_z,
             _ => unreachable!(),
         };
         let left;
@@ -46,12 +46,12 @@ impl BvhNode {
             _ => {
                 objects.sort_unstable_by(comparator);
 
-                right = Arc::new(BvhNode::new(objects.split_off(objects.len() / 2)));
-                left = Arc::new(BvhNode::new(objects));
+                right = Arc::new(Self::new(objects.split_off(objects.len() / 2)));
+                left = Arc::new(Self::new(objects));
             }
         }
 
-        BvhNode {
+        Self {
             bounding_box: left.bounding_box().combined(right.bounding_box()),
             left,
             right,
@@ -66,15 +66,15 @@ impl BvhNode {
     }
 
     fn box_compare_x(a: &Arc<dyn Hit>, b: &Arc<dyn Hit>) -> Ordering {
-        BvhNode::box_compare(a, b, 0)
+        Self::box_compare(a, b, 0)
     }
 
     fn box_compare_y(a: &Arc<dyn Hit>, b: &Arc<dyn Hit>) -> Ordering {
-        BvhNode::box_compare(a, b, 1)
+        Self::box_compare(a, b, 1)
     }
 
     fn box_compare_z(a: &Arc<dyn Hit>, b: &Arc<dyn Hit>) -> Ordering {
-        BvhNode::box_compare(a, b, 2)
+        Self::box_compare(a, b, 2)
     }
 }
 

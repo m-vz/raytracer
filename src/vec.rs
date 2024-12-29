@@ -95,28 +95,28 @@ impl Vec3 {
         }
     }
 
-        Vec3(self.0, 0.0, 0.0)
     pub const fn x(&self) -> Self {
+        Self(self.0, 0.0, 0.0)
     }
 
-        Vec3(0.0, self.1, 0.0)
     pub const fn y(&self) -> Self {
+        Self(0.0, self.1, 0.0)
     }
 
-        Vec3(0.0, 0.0, self.2)
     pub const fn z(&self) -> Self {
+        Self(0.0, 0.0, self.2)
     }
 
-        Vec3(self.0, self.1, 0.0)
     pub const fn xy(&self) -> Self {
+        Self(self.0, self.1, 0.0)
     }
 
-        Vec3(self.0, 0.0, self.2)
     pub const fn xz(&self) -> Self {
+        Self(self.0, 0.0, self.2)
     }
 
-        Vec3(0.0, self.1, self.2)
     pub const fn yz(&self) -> Self {
+        Self(0.0, self.1, self.2)
     }
 
     pub fn len(&self) -> f64 {
@@ -175,7 +175,7 @@ impl Vec3 {
 }
 
 impl Add for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
         Self(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
@@ -191,7 +191,7 @@ impl AddAssign for Vec3 {
 }
 
 impl Sub for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self(self.0 - rhs.0, self.1 - rhs.1, self.2 - rhs.2)
@@ -207,7 +207,7 @@ impl SubAssign for Vec3 {
 }
 
 impl Neg for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
 
     fn neg(self) -> Self::Output {
         Self(-self.0, -self.1, -self.2)
@@ -215,7 +215,7 @@ impl Neg for Vec3 {
 }
 
 impl Mul for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
         Self(self.0 * rhs.0, self.1 * rhs.1, self.2 * rhs.2)
@@ -231,7 +231,7 @@ impl MulAssign for Vec3 {
 }
 
 impl Mul<f64> for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
 
     fn mul(self, rhs: f64) -> Self::Output {
         Self(self.0 * rhs, self.1 * rhs, self.2 * rhs)
@@ -255,7 +255,7 @@ impl Mul<Vec3> for f64 {
 }
 
 impl Div<f64> for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
 
     fn div(self, rhs: f64) -> Self::Output {
         self * (1.0 / rhs)

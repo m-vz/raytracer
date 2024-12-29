@@ -17,7 +17,7 @@ impl Ray {
     }
 
     pub fn normalized(&self) -> Self {
-        Ray {
+        Self {
             origin: self.origin,
             direction: self.direction.normalized(),
             time: self.time,

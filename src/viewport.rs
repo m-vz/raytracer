@@ -37,7 +37,7 @@ impl Viewport {
     ) -> Self {
         let pixel_size = (size.0 / resolution.0 as f64, size.1 / resolution.1 as f64);
 
-        Viewport {
+        Self {
             width: size.0,
             height: size.1,
             origin,
