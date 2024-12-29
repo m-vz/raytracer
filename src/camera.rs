@@ -101,14 +101,13 @@ impl Camera {
 
     pub fn render_and_save<P: AsRef<Path>>(
         &mut self,
-        root: Arc<dyn Hit>,
+        root: &Arc<dyn Hit>,
         path: P,
         num_threads: u32,
     ) -> Result<(), CameraError> {
         println!("starting render...");
         let t = Instant::now();
-
-        let samples_per_thread_sqrt = (self.samples as f64 / num_threads as f64).sqrt() as u32;
+        let samples_per_thread = f64::from(self.samples) / f64::from(num_threads);
 
         if num_threads > 1 {
             let mut threads = Vec::with_capacity(num_threads as usize);
@@ -117,7 +116,7 @@ impl Camera {
                 let thread_root = root.clone();
 
                 threads.push(spawn(move || {
-                    thread_camera.render(thread_root, samples_per_thread_sqrt, i == 0);
+                    thread_camera.render(&thread_root, samples_per_thread, i == 0);
                     thread_camera.target
                 }));
             }
@@ -133,7 +132,7 @@ impl Camera {
                 Err(error) => return Err(CameraError::Averaging(error)),
             }
         } else {
-            self.render(root, samples_per_thread_sqrt, true);
+            self.render(root, samples_per_thread, true);
         }
 
         println!("writing file...");
@@ -145,16 +144,18 @@ impl Camera {
         Ok(())
     }
 
-    fn render(&mut self, root: Arc<dyn Hit>, samples_sqrt: u32, log: bool) {
-        let subpixel_scale = 1.0 / samples_sqrt as f64;
-        let samples = samples_sqrt * samples_sqrt;
+    fn render(&mut self, root: &Arc<dyn Hit>, samples: f64, log: bool) {
+        let samples_sqrt = samples.sqrt();
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let dimension_indices = 0..samples_sqrt as u32;
+        let subpixel_scale = 1.0 / samples_sqrt;
 
         for y in 0..self.target.height() {
             for x in 0..self.target.width() {
                 let mut color = Color::black();
 
-                for sample_y in 0..samples_sqrt {
-                    for sample_x in 0..samples_sqrt {
+                for sample_y in dimension_indices.clone() {
+                    for sample_x in dimension_indices.clone() {
                         let sample =
                             self.viewport
                                 .pixel_sample(x, y, sample_x, sample_y, subpixel_scale);
@@ -170,7 +171,7 @@ impl Camera {
                         color += self.ray_color(root.clone(), ray, 0);
                     }
                 }
-                color /= samples as f64;
+                color /= samples;
 
                 self.target.set_pixel(x, y, color.clamped());
 

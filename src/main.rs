@@ -42,7 +42,7 @@ fn main() {
     let threads = 8;
     camera.samples = 4 * threads;
     camera
-        .render_and_save(root, "output/result.png", threads)
+        .render_and_save(&root, "output/result.png", threads)
         .unwrap();
 }
 
