@@ -12,6 +12,8 @@ use crate::math;
 #[derive(Debug)]
 pub enum ImageError {
     IOError(std::io::Error),
+    #[allow(dead_code)] // can be removed as soon as this error is logged correctly
+    SaveError(image::ImageError),
     AveragingZeroImages,
     DimensionsMismatch,
 }
@@ -49,7 +51,7 @@ impl Image {
         }
     }
 
-    pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, ImageError> {
+    pub fn load<P: AsRef<Path>>(path: P) -> Self {
         let width: u32;
         let height: u32;
         let data: Vec<Color>;
@@ -82,11 +84,11 @@ impl Image {
                 .collect();
         }
 
-        Ok(Self {
+        Self {
             width,
             height,
             data,
-        })
+        }
     }
 
     pub fn average(images: &Vec<Self>) -> Result<Self, ImageError> {
@@ -199,9 +201,7 @@ impl Image {
                 }
             });
 
-        image.save(path).expect("couldn't save image");
-
-        Ok(())
+        image.save(path).map_err(ImageError::SaveError)
     }
 }
 

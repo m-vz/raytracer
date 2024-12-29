@@ -3,7 +3,7 @@ use std::path::Path;
 
 use crate::background::Background;
 use crate::color::Color;
-use crate::image::{Image, ImageError};
+use crate::image::Image;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
@@ -14,12 +14,12 @@ pub struct Hdri {
 }
 
 impl Hdri {
-    pub fn load<P: AsRef<Path>>(path: P, strength: f64, rotation: f64) -> Result<Self, ImageError> {
-        Ok(Self {
-            texture: Image::load(path)?,
+    pub fn load<P: AsRef<Path>>(path: P, strength: f64, rotation: f64) -> Self {
+        Self {
+            texture: Image::load(path),
             strength,
             rotation: rotation.to_radians(),
-        })
+        }
     }
 
     fn uv(&self, point: &Vec3) -> (f64, f64) {

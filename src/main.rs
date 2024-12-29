@@ -314,7 +314,7 @@ fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
 #[allow(dead_code)]
 fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
     let material = Arc::new(Lambertian {
-        texture: Arc::new(ImageTexture::load("resources/earth.png").unwrap()),
+        texture: Arc::new(ImageTexture::load("resources/earth.png")),
     });
     let mut spheres: Vec<Arc<dyn Hit>> = Vec::new();
     for z in -2..=2 {

@@ -2,7 +2,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use crate::color::Color;
-use crate::image::{Image, ImageError};
+use crate::image::Image;
 use crate::texture::Texture;
 use crate::vec::Vec3;
 
@@ -11,10 +11,10 @@ pub struct ImageTexture {
 }
 
 impl ImageTexture {
-    pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, ImageError> {
-        Ok(Self {
-            image: Arc::new(Image::load(path)?),
-        })
+    pub fn load<P: AsRef<Path>>(path: P) -> Self {
+        Self {
+            image: Arc::new(Image::load(path)),
+        }
     }
 }
 
