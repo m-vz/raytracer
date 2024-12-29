@@ -4,6 +4,7 @@ use std::sync::Arc;
 use std::thread::spawn;
 use std::time::Instant;
 
+use crate::background::background_color::BackgroundColor;
 use crate::background::Background;
 use crate::color::Color;
 use crate::hit::Hit;
@@ -28,6 +29,111 @@ impl From<io::Error> for CameraError {
 }
 
 #[derive(Clone)]
+pub struct CameraBuilder {
+    position: Vec3,
+    forward: Vec3,
+    up: Vec3,
+    focus_distance: f64,
+    defocus_angle: f64,
+    fov: f64,
+    samples: u32,
+    max_bounces: u32,
+    background: Arc<dyn Background>,
+}
+
+impl Default for CameraBuilder {
+    fn default() -> Self {
+        Self {
+            position: Vec3::zero(),
+            forward: Vec3::forward(),
+            up: Vec3::up(),
+            focus_distance: 1.0,
+            defocus_angle: 0.0,
+            fov: 80.0,
+            samples: 9,
+            max_bounces: 50,
+            background: Arc::new(BackgroundColor::default()),
+        }
+    }
+}
+
+#[allow(dead_code)]
+impl CameraBuilder {
+    pub fn new(focus_distance: f64, defocus_angle: f64, fov: f64) -> Self {
+        Self {
+            focus_distance,
+            defocus_angle,
+            fov,
+            ..Default::default()
+        }
+    }
+
+    pub const fn with_position(mut self, position: Vec3) -> Self {
+        self.position = position;
+        self
+    }
+
+    pub const fn with_forward(mut self, forward: Vec3) -> Self {
+        self.forward = forward;
+        self
+    }
+
+    pub const fn with_up(mut self, up: Vec3) -> Self {
+        self.up = up;
+        self
+    }
+
+    pub const fn with_samples(mut self, samples: u32) -> Self {
+        self.samples = samples;
+        self
+    }
+
+    pub const fn with_max_bounces(mut self, max_bounces: u32) -> Self {
+        self.max_bounces = max_bounces;
+        self
+    }
+
+    pub fn with_background(mut self, background: impl Background + 'static) -> Self {
+        self.background = Arc::new(background);
+        self
+    }
+
+    pub fn look_at(mut self, look_at: Vec3) -> Self {
+        self.forward = self.position.look_at(&look_at);
+        self
+    }
+
+    pub fn build(mut self, target: Image) -> Camera {
+        self.forward.normalize();
+        let right = self.forward.cross(&self.up.normalized());
+        let up = right.cross(&self.forward);
+
+        let h = (self.fov.to_radians() / 2.0).tan();
+        let viewport_height = 2.0 * h * self.focus_distance;
+
+        let viewport = Viewport::with_center(
+            self.position + self.focus_distance * self.forward,
+            (viewport_height * target.aspect(), viewport_height),
+            target.resolution(),
+            right,
+            -up,
+        );
+
+        let defocus_radius = self.focus_distance * (self.defocus_angle / 2.0).to_radians().tan();
+
+        Camera {
+            position: self.position,
+            viewport,
+            defocus_disk: (right * defocus_radius, up * defocus_radius),
+            target,
+            samples: 9,
+            max_bounces: 50,
+            background: self.background,
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct Camera {
     pub position: Vec3,
     viewport: Viewport,
@@ -39,66 +145,6 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn look_at(
-        position: Vec3,
-        look_at: Vec3,
-        up: Vec3,
-        focus_distance: f64,
-        defocus_angle: f64,
-        fov: f64,
-        target: Image,
-        background: impl Background + 'static,
-    ) -> Self {
-        Self::face(
-            position,
-            position.look_at(&look_at),
-            up,
-            focus_distance,
-            defocus_angle,
-            fov,
-            target,
-            background,
-        )
-    }
-
-    pub fn face(
-        position: Vec3,
-        mut forward: Vec3,
-        up: Vec3,
-        focus_distance: f64,
-        defocus_angle: f64,
-        fov: f64,
-        target: Image,
-        background: impl Background + 'static,
-    ) -> Self {
-        forward.normalize();
-        let right = forward.cross(&up.normalized());
-        let up = right.cross(&forward);
-
-        let h = (fov.to_radians() / 2.0).tan();
-        let viewport_height = 2.0 * h * focus_distance;
-
-        let viewport = Viewport::with_center(
-            position + focus_distance * forward,
-            (viewport_height * target.aspect(), viewport_height),
-            target.resolution(),
-            right,
-            -up,
-        );
-
-        let defocus_radius = focus_distance * (defocus_angle / 2.0).to_radians().tan();
-
-        Self {
-            position,
-            viewport,
-            defocus_disk: (right * defocus_radius, up * defocus_radius),
-            target,
-            samples: 9,
-            max_bounces: 50,
-            background: Arc::new(background),
-        }
-    }
-
     pub fn render_and_save<P: AsRef<Path>>(
         &mut self,
         root: &Arc<dyn Hit>,
@@ -213,25 +259,16 @@ impl Camera {
 mod tests {
     use float_cmp::assert_approx_eq;
 
-    use crate::background::background_color::BackgroundColor;
+    use crate::camera::CameraBuilder;
     use crate::color::Color;
     use crate::image::Image;
     use crate::vec::Vec3;
 
-    use super::Camera;
-
     #[test]
     fn created_correctly() {
-        let camera = Camera::face(
-            Vec3(0.0, 0.0, 0.0),
-            Vec3(0.0, 0.0, -1.0),
-            Vec3(0.0, 1.0, 0.0),
-            1.0,
-            10.0,
-            90.0,
-            Image::with_aspect_ratio(1, 1.0, Color::black()),
-            BackgroundColor::black(),
-        );
+        let camera = CameraBuilder::new(1.0, 10.0, 90.0)
+            .with_forward(Vec3(0.0, 0.0, -1.0))
+            .build(Image::with_aspect_ratio(1, 1.0, Color::black()));
 
         assert_approx_eq!(Vec3, camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));
         assert_approx_eq!(f64, camera.viewport.width, 2.0);

@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use camera::CameraBuilder;
+
 use crate::background::background_color::BackgroundColor;
 use crate::background::hdri::Hdri;
 use crate::camera::Camera;
@@ -52,22 +54,16 @@ fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
     let a = 5.55;
 
     (
-        Camera::face(
-            Vec3(2.78, 2.78, -8.0),
-            -Vec3::forward(),
-            Vec3::up(),
-            8.0,
-            0.0,
-            40.0,
-            image,
-            Hdri::load(
+        CameraBuilder::new(8.0, 0.0, 40.0)
+            .with_position(Vec3(2.78, 2.78, -8.0))
+            .with_forward(-Vec3::forward())
+            .with_background(Hdri::load(
                 "resources/hdri/drakensberg_solitary_mountain_puresky_4k.hdr",
                 1.0,
                 0.0,
-            )
-            .unwrap(),
-        ),
         Arc::new(BvhNode::new(vec![
+            ))
+            .build(image),
             // left
             Arc::new(
                 QuadBuilder::new(
@@ -136,16 +132,6 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
     let a = 555.0;
 
     (
-        Camera::face(
-            Vec3(278.0, 278.0, -800.0),
-            -Vec3::forward(),
-            Vec3::up(),
-            800.0,
-            0.0,
-            40.0,
-            image,
-            BackgroundColor::black(),
-        ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
                 QuadBuilder::new(
@@ -201,6 +187,10 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
                 )
                 .build(),
             ),
+        CameraBuilder::new(800.0, 0.0, 40.0)
+            .with_position(Vec3(278.0, 278.0, -800.0))
+            .with_forward(-Vec3::forward())
+            .build(image),
             Arc::new(Translation::new(
                 Arc::new(RotationY::new(
                     Arc::new(
@@ -227,17 +217,10 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
 #[allow(dead_code)]
 fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
     (
-        Camera::face(
-            Vec3(0.0, 3.2, 8.0),
-            Vec3::forward(),
-            Vec3::up(),
-            8.0,
-            2.0,
-            60.0,
-            image,
-            BackgroundColor::black(),
-        ),
         Arc::new(BvhNode::new(vec![
+        CameraBuilder::new(8.0, 2.0, 60.0)
+            .with_position(Vec3(0.0, 3.2, 8.0))
+            .build(image),
             Arc::new(
                 SphereBuilder::new(
                     Vec3(0.0, -1000.0, 0.0),
@@ -281,16 +264,6 @@ fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
 #[allow(dead_code)]
 fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
     (
-        Camera::look_at(
-            Vec3(0.0, 0.0, 9.0),
-            Vec3::zero(),
-            Vec3::up(),
-            9.0,
-            0.0,
-            80.0,
-            image,
-            BackgroundColor::new(0.7, 0.8, 1.0),
-        ),
         Arc::new(BvhNode::new(vec![
             Arc::new(
                 QuadBuilder::new(
@@ -347,6 +320,11 @@ fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
                 )
                 .build(),
             ),
+        CameraBuilder::new(9.0, 0.0, 80.0)
+            .with_position(Vec3(0.0, 0.0, 9.0))
+            .with_background(BackgroundColor::new(0.7, 0.8, 1.0))
+            .look_at(Vec3::zero())
+            .build(image),
         ])),
     )
 }
@@ -354,17 +332,12 @@ fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
 #[allow(dead_code)]
 fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
     (
-        Camera::look_at(
-            Vec3(13.0, 2.0, 3.0),
-            Vec3::zero(),
-            Vec3::up(),
-            3.0,
-            0.0,
-            20.0,
-            image,
-            BackgroundColor::new(0.7, 0.8, 1.0),
-        ),
         Arc::new(BvhNode::new(vec![
+        CameraBuilder::new(3.0, 0.0, 20.0)
+            .with_position(Vec3(13.0, 2.0, 3.0))
+            .with_background(BackgroundColor::new(0.7, 0.8, 1.0))
+            .look_at(Vec3::zero())
+            .build(image),
             Arc::new(
                 SphereBuilder::new(
                     Vec3(0.0, -1000.0, 0.0),
@@ -420,17 +393,12 @@ fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
     ));
 
     (
-        Camera::look_at(
-            Vec3(0.0, 0.0, 4.0),
-            Vec3::zero(),
-            Vec3::up(),
-            2.0,
-            1.0,
-            20.0,
-            image,
-            BackgroundColor::new(0.7, 0.8, 1.0),
-        ),
         Arc::new(BvhNode::new(spheres)),
+        CameraBuilder::new(2.0, 1.0, 20.0)
+            .with_position(Vec3(0.0, 0.0, 4.0))
+            .with_background(BackgroundColor::new(0.7, 0.8, 1.0))
+            .look_at(Vec3::zero())
+            .build(image),
     )
 }
 
@@ -439,17 +407,12 @@ fn checker_balls(image: Image) -> (Camera, Arc<dyn Hit>) {
     let camera_position = Vec3(0.0, 0.25, 1.0);
 
     (
-        Camera::look_at(
-            camera_position,
-            Vec3::zero(),
-            Vec3::up(),
-            camera_position.len(),
-            2.0,
-            40.0,
-            image,
-            BackgroundColor::new(0.7, 0.8, 1.0),
-        ),
         Arc::new(BvhNode::new(vec![
+        CameraBuilder::new(camera_position.len(), 2.0, 40.0)
+            .with_position(camera_position)
+            .with_background(BackgroundColor::new(0.7, 0.8, 1.0))
+            .look_at(Vec3::zero())
+            .build(image),
             Arc::new(
                 SphereBuilder::new(
                     Vec3(0.0, -1000.3, 0.0),
