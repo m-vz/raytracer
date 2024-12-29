@@ -23,6 +23,18 @@ impl Color {
         Self::new(1.0, 1.0, 1.0)
     }
 
+    pub const fn red() -> Self {
+        Self::new(1.0, 0.0, 0.0)
+    }
+
+    pub const fn green() -> Self {
+        Self::new(0.0, 1.0, 0.0)
+    }
+
+    pub const fn blue() -> Self {
+        Self::new(0.0, 0.0, 1.0)
+    }
+
     pub fn random() -> Self {
         Self(Vec3::random())
     }

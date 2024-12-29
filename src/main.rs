@@ -39,16 +39,115 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let width = 400;
+    let width = 200;
     let image = Image::with_aspect_ratio(width, 1.0, Color::black());
 
-    let (mut camera, root) = hdri(image);
+    let (mut camera, root) = mis(image);
 
     let threads = 8;
-    camera.samples = 4 * threads;
     camera
         .render_and_save(&root, "output/result.png", threads)
         .unwrap();
+}
+
+#[allow(dead_code)]
+fn mis(image: Image) -> (Camera, Arc<dyn Hit>) {
+    let incline = 0.13;
+    let width = 1.4;
+    (
+        CameraBuilder::new(8.0, 0.0, 40.0)
+            .with_position(Vec3(0.0, 3.0, 5.0))
+            .with_forward(Vec3(0.0, -0.5, -2.0))
+            .with_samples(100)
+            .with_max_bounces(2) // don't show the wall reflection in the mirrors
+            .build(image),
+        Arc::new(Node::new(vec![
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(0.0, 3.0, -1006.0),
+                    1000.0,
+                    Arc::new(Lambertian::colored(Color::white())),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(0.0, -1000.01, 0.0),
+                    1000.0,
+                    Arc::new(Lambertian::colored(Color::white())),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(-2.25, 3.0, -5.0),
+                    0.02,
+                    Arc::new(DiffuseLight::colored(Color::white())),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(-0.75, 3.0, -5.0),
+                    0.1,
+                    Arc::new(DiffuseLight::colored(Color::red())),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(0.75, 3.0, -5.0),
+                    0.25,
+                    Arc::new(DiffuseLight::colored(Color::green())),
+                )
+                .build(),
+            ),
+            Arc::new(
+                SphereBuilder::new(
+                    Vec3(2.25, 3.0, -5.0),
+                    0.5,
+                    Arc::new(DiffuseLight::colored(Color::blue())),
+                )
+                .build(),
+            ),
+            Arc::new(Quad::new(
+                Vec3(-2.5, 0.0, 0.5 * width),
+                5.0 * Vec3::right(),
+                width * Vec3(0.0, 0.0, -1.0),
+                Arc::new(Metal {
+                    albedo: Color::white(),
+                    fuzz: 0.08,
+                }),
+            )),
+            Arc::new(Quad::new(
+                Vec3(-2.5, 0.0, -0.5 * width),
+                5.0 * Vec3::right(),
+                width * Vec3(0.0, incline, -1.0),
+                Arc::new(Metal {
+                    albedo: Color::white(),
+                    fuzz: 0.05,
+                }),
+            )),
+            Arc::new(Quad::new(
+                Vec3(-2.5, incline, -1.5 * width),
+                5.0 * Vec3::right(),
+                width * Vec3(0.0, 2.2 * incline, -1.0),
+                Arc::new(Metal {
+                    albedo: Color::white(),
+                    fuzz: 0.01,
+                }),
+            )),
+            Arc::new(Quad::new(
+                Vec3(-2.5, 3.2 * incline, -2.5 * width),
+                5.0 * Vec3::right(),
+                width * Vec3(0.0, 4.2 * incline, -1.0),
+                Arc::new(Metal {
+                    albedo: Color::white(),
+                    fuzz: 0.0,
+                }),
+            )),
+        ])),
+    )
 }
 
 #[allow(dead_code)]
