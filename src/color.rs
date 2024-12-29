@@ -6,7 +6,7 @@ use image::Rgb;
 
 use crate::vec::Vec3;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Color(Vec3);
 
 #[allow(dead_code)]

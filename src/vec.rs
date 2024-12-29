@@ -3,7 +3,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, 
 
 use float_cmp::{ApproxEq, F64Margin};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
 #[allow(dead_code)]

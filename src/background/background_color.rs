@@ -1,6 +1,7 @@
 use crate::background::Background;
 use crate::color::Color;
 
+#[derive(Debug, Copy, Clone, Default)]
 pub struct BackgroundColor(pub Color);
 
 #[allow(dead_code)]
