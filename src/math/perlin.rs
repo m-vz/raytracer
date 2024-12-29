@@ -2,8 +2,8 @@ use rand::seq::SliceRandom;
 
 use crate::vec::Vec3;
 
-const POINT_COUNT: usize = 256;
-const MAX_INDEX: i32 = POINT_COUNT as i32 - 1;
+const POINT_COUNT: u32 = 256;
+const MAX_INDEX: i64 = POINT_COUNT as i64 - 1;
 
 pub struct PerlinNoise {
     points: Vec<Vec3>,
@@ -12,11 +12,11 @@ pub struct PerlinNoise {
 
 impl PerlinNoise {
     pub fn new() -> Self {
-        let mut points = Vec::with_capacity(POINT_COUNT);
+        let mut points = Vec::with_capacity(POINT_COUNT as usize);
         let mut permutations: (Vec<usize>, Vec<usize>, Vec<usize>) = (
-            (0..POINT_COUNT).collect(),
-            (0..POINT_COUNT).collect(),
-            (0..POINT_COUNT).collect(),
+            (0..POINT_COUNT as usize).collect(),
+            (0..POINT_COUNT as usize).collect(),
+            (0..POINT_COUNT as usize).collect(),
         );
 
         for _ in 0..POINT_COUNT {
@@ -41,17 +41,35 @@ impl PerlinNoise {
         for i in 0..2 {
             for j in 0..2 {
                 for k in 0..2 {
-                    let sample = self.points[self.permutations.0
-                        [((floor.0 as i32 + i) & MAX_INDEX) as usize]
-                        ^ self.permutations.1[((floor.1 as i32 + j) & MAX_INDEX) as usize]
-                        ^ self.permutations.2[((floor.2 as i32 + k) & MAX_INDEX) as usize]];
-                    let ijk = Vec3(i as f64, j as f64, k as f64);
+                    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+                    let indices = (
+                        (floor.0 as i64 + i) & MAX_INDEX,
+                        (floor.1 as i64 + j) & MAX_INDEX,
+                        (floor.2 as i64 + k) & MAX_INDEX,
+                    );
+                    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+                    let sample = self.points[self.permutations.0[indices.0 as usize]
+                        ^ self.permutations.1[indices.1 as usize]
+                        ^ self.permutations.2[indices.2 as usize]];
+                    #[allow(clippy::cast_precision_loss)]
+                    let weights = Vec3(i as f64, j as f64, k as f64);
+                    let surflets = [
+                        weights.0.mul_add(
+                            offset_smoothed.0,
+                            (1.0 - weights.0) * (1.0 - offset_smoothed.0),
+                        ),
+                        weights.1.mul_add(
+                            offset_smoothed.1,
+                            (1.0 - weights.1) * (1.0 - offset_smoothed.1),
+                        ),
+                        weights.2.mul_add(
+                            offset_smoothed.2,
+                            (1.0 - weights.2) * (1.0 - offset_smoothed.2),
+                        ),
+                    ];
 
-                    noise += (ijk.0 * offset_smoothed.0
-                        + (1.0 - ijk.0) * (1.0 - offset_smoothed.0))
-                        * (ijk.1 * offset_smoothed.1 + (1.0 - ijk.1) * (1.0 - offset_smoothed.1))
-                        * (ijk.2 * offset_smoothed.2 + (1.0 - ijk.2) * (1.0 - offset_smoothed.2))
-                        * sample.dot(&(offset - ijk));
+                    noise +=
+                        surflets.into_iter().product::<f64>() * sample.dot(&(offset - weights));
                 }
             }
         }
