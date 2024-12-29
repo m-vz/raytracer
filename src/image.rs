@@ -205,7 +205,7 @@ impl Image {
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::assert_approx_eq;
+    use approx::assert_abs_diff_eq;
 
     use crate::color::Color;
 
@@ -217,7 +217,7 @@ mod tests {
 
         assert_eq!(image.width, 10);
         assert_eq!(image.height, 5);
-        assert_approx_eq!(Color, image.get_pixel(4, 0), Color::black());
+        assert_abs_diff_eq!(image.get_pixel(4, 0), Color::black());
     }
 
     #[test]
@@ -227,7 +227,7 @@ mod tests {
 
         assert_eq!(image.width, 10);
         assert_eq!(image.height, 8);
-        assert_approx_eq!(Color, image.get_pixel(3, 5), color);
+        assert_abs_diff_eq!(image.get_pixel(3, 5), color);
     }
 
     #[test]
@@ -235,8 +235,8 @@ mod tests {
         let color = Color::random();
         let mut image = Image::with_dimensions(3, 3, Color::black());
 
-        assert_approx_eq!(Color, image.get_pixel(1, 1), Color::black());
+        assert_abs_diff_eq!(image.get_pixel(1, 1), Color::black());
         image.set_pixel(1, 1, color);
-        assert_approx_eq!(Color, image.get_pixel(1, 1), color);
+        assert_abs_diff_eq!(image.get_pixel(1, 1), color);
     }
 }

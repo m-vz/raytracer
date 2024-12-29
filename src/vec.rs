@@ -2,9 +2,9 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 use std::vec::IntoIter;
 
-use float_cmp::{ApproxEq, F64Margin};
+use approx::AbsDiffEq;
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone, Default, PartialEq)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
 #[allow(dead_code)]
@@ -272,23 +272,17 @@ impl Display for Vec3 {
     }
 }
 
-impl ApproxEq for Vec3 {
-    type Margin = F64Margin;
+impl AbsDiffEq for Vec3 {
+    type Epsilon = f64;
 
-    fn approx_eq<M: Into<Self::Margin>>(self, other: Self, margin: M) -> bool {
-        let margin = margin.into();
-
-        self.0.approx_eq(other.0, margin)
-            && self.1.approx_eq(other.1, margin)
-            && self.2.approx_eq(other.2, margin)
+    fn default_epsilon() -> Self::Epsilon {
+        f64::default_epsilon()
     }
 
-    fn approx_ne<M: Into<Self::Margin>>(self, other: Self, margin: M) -> bool {
-        let margin = margin.into();
-
-        self.0.approx_ne(other.0, margin)
-            && self.1.approx_ne(other.1, margin)
-            && self.2.approx_ne(other.2, margin)
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        f64::abs_diff_eq(&self.0, &other.0, epsilon)
+            && f64::abs_diff_eq(&self.1, &other.1, epsilon)
+            && f64::abs_diff_eq(&self.2, &other.2, epsilon)
     }
 }
 
@@ -303,7 +297,7 @@ impl IntoIterator for Vec3 {
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::assert_approx_eq;
+    use approx::assert_abs_diff_eq;
 
     use super::Vec3;
 
@@ -311,17 +305,17 @@ mod tests {
     fn len() {
         let v = Vec3(1.0, 1.0, 0.0);
 
-        assert_approx_eq!(f64, v.len(), 2f64.sqrt());
-        assert_approx_eq!(f64, v.len_sq(), 2.0);
+        assert_abs_diff_eq!(v.len(), 2f64.sqrt());
+        assert_abs_diff_eq!(v.len_sq(), 2.0);
     }
 
     #[test]
     fn normalize() {
         let mut v = Vec3(2.0, 0.0, 0.0);
 
-        assert_approx_eq!(Vec3, v.normalized(), Vec3(1.0, 0.0, 0.0));
+        assert_abs_diff_eq!(v.normalized(), Vec3(1.0, 0.0, 0.0));
         v.normalize();
-        assert_approx_eq!(Vec3, v, Vec3(1.0, 0.0, 0.0));
+        assert_abs_diff_eq!(v, Vec3(1.0, 0.0, 0.0));
     }
 
     #[test]
@@ -329,9 +323,9 @@ mod tests {
         let mut v1 = Vec3(1.0, 2.0, 3.0);
         let v2 = Vec3(4.0, 5.0, 6.0);
 
-        assert_approx_eq!(Vec3, v1 + v2, Vec3(5.0, 7.0, 9.0));
+        assert_abs_diff_eq!(v1 + v2, Vec3(5.0, 7.0, 9.0));
         v1 += v2;
-        assert_approx_eq!(Vec3, v1, Vec3(5.0, 7.0, 9.0));
+        assert_abs_diff_eq!(v1, Vec3(5.0, 7.0, 9.0));
     }
 
     #[test]
@@ -339,10 +333,10 @@ mod tests {
         let mut v1 = Vec3(4.0, 5.0, 6.0);
         let v2 = Vec3(1.0, 2.0, 3.0);
 
-        assert_approx_eq!(Vec3, v1 - v2, Vec3(3.0, 3.0, 3.0));
+        assert_abs_diff_eq!(v1 - v2, Vec3(3.0, 3.0, 3.0));
         v1 -= v2;
-        assert_approx_eq!(Vec3, v1, Vec3(3.0, 3.0, 3.0));
-        assert_approx_eq!(Vec3, -v1, Vec3(-3.0, -3.0, -3.0));
+        assert_abs_diff_eq!(v1, Vec3(3.0, 3.0, 3.0));
+        assert_abs_diff_eq!(-v1, Vec3(-3.0, -3.0, -3.0));
     }
 
     #[test]
@@ -351,12 +345,12 @@ mod tests {
         let v2 = Vec3(4.0, 5.0, 6.0);
         let t = 2.0;
 
-        assert_approx_eq!(Vec3, v1 * v2, Vec3(4.0, 10.0, 18.0));
+        assert_abs_diff_eq!(v1 * v2, Vec3(4.0, 10.0, 18.0));
         v1 *= v2;
-        assert_approx_eq!(Vec3, v1, Vec3(4.0, 10.0, 18.0));
-        assert_approx_eq!(Vec3, v1 * t, Vec3(8.0, 20.0, 36.0));
+        assert_abs_diff_eq!(v1, Vec3(4.0, 10.0, 18.0));
+        assert_abs_diff_eq!(v1 * t, Vec3(8.0, 20.0, 36.0));
         v1 *= t;
-        assert_approx_eq!(Vec3, v1, Vec3(8.0, 20.0, 36.0));
+        assert_abs_diff_eq!(v1, Vec3(8.0, 20.0, 36.0));
     }
 
     #[test]
@@ -364,9 +358,9 @@ mod tests {
         let mut v1 = Vec3(1.0, 2.0, 3.0);
         let t = 2.0;
 
-        assert_approx_eq!(Vec3, v1 / t, Vec3(0.5, 1.0, 1.5));
+        assert_abs_diff_eq!(v1 / t, Vec3(0.5, 1.0, 1.5));
         v1 /= t;
-        assert_approx_eq!(Vec3, v1, Vec3(0.5, 1.0, 1.5));
+        assert_abs_diff_eq!(v1, Vec3(0.5, 1.0, 1.5));
     }
 
     #[test]
@@ -374,7 +368,7 @@ mod tests {
         let v1 = Vec3(1.0, 2.0, 3.0);
         let v2 = Vec3(4.0, 5.0, 6.0);
 
-        assert_approx_eq!(f64, v1.dot(&v2), 32.0);
+        assert_abs_diff_eq!(v1.dot(&v2), 32.0);
     }
 
     #[test]
@@ -382,6 +376,6 @@ mod tests {
         let v1 = Vec3(1.0, 2.0, 3.0);
         let v2 = Vec3(4.0, 5.0, 6.0);
 
-        assert_approx_eq!(Vec3, v1.cross(&v2), Vec3(-3.0, 6.0, -3.0));
+        assert_abs_diff_eq!(v1.cross(&v2), Vec3(-3.0, 6.0, -3.0));
     }
 }

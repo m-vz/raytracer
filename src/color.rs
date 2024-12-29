@@ -1,12 +1,12 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
-use float_cmp::{ApproxEq, F64Margin};
+use approx::AbsDiffEq;
 use image::Rgb;
 
 use crate::vec::Vec3;
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone, Default, PartialEq)]
 pub struct Color(Vec3);
 
 #[allow(dead_code)]
@@ -199,29 +199,23 @@ impl From<Rgb<u8>> for Color {
     }
 }
 
-impl ApproxEq for Color {
-    type Margin = F64Margin;
+impl AbsDiffEq for Color {
+    type Epsilon = f64;
 
-    fn approx_eq<M: Into<Self::Margin>>(self, other: Self, margin: M) -> bool {
-        let margin = margin.into();
-
-        self.r().approx_eq(other.r(), margin)
-            && self.g().approx_eq(other.g(), margin)
-            && self.b().approx_eq(other.b(), margin)
+    fn default_epsilon() -> Self::Epsilon {
+        f64::default_epsilon()
     }
 
-    fn approx_ne<M: Into<Self::Margin>>(self, other: Self, margin: M) -> bool {
-        let margin = margin.into();
-
-        self.r().approx_ne(other.r(), margin)
-            && self.g().approx_ne(other.g(), margin)
-            && self.b().approx_ne(other.b(), margin)
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        f64::abs_diff_eq(&self.r(), &other.r(), epsilon)
+            && f64::abs_diff_eq(&self.g(), &other.g(), epsilon)
+            && f64::abs_diff_eq(&self.b(), &other.b(), epsilon)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::assert_approx_eq;
+    use approx::assert_abs_diff_eq;
 
     use super::Color;
 
@@ -236,16 +230,16 @@ mod tests {
     fn from_integer_color() {
         let color = Color::from((0, 127, 255));
 
-        assert_approx_eq!(Color, color, Color::new(0.0, 0.5, 1.0), epsilon = 0.01);
+        assert_abs_diff_eq!(color, Color::new(0.0, 0.5, 1.0), epsilon = 0.01);
     }
 
     #[test]
     fn clamping() {
         let mut c1 = Color::new(1.5, -0.7, 0.4);
 
-        assert_approx_eq!(Color, c1.clamped(), Color::new(1.0, 0.0, 0.4));
+        assert_abs_diff_eq!(c1.clamped(), Color::new(1.0, 0.0, 0.4));
         c1.clamp();
-        assert_approx_eq!(Color, c1, Color::new(1.0, 0.0, 0.4));
+        assert_abs_diff_eq!(c1, Color::new(1.0, 0.0, 0.4));
     }
 
     #[test]
@@ -253,9 +247,9 @@ mod tests {
         let mut c1 = Color::new(1.0, 0.5, 0.1);
         let c2 = Color::new(0.5, 1.0, 0.1);
 
-        assert_approx_eq!(Color, c1 + c2, Color::new(1.5, 1.5, 0.2));
+        assert_abs_diff_eq!(c1 + c2, Color::new(1.5, 1.5, 0.2));
         c1 += c2;
-        assert_approx_eq!(Color, c1, Color::new(1.5, 1.5, 0.2));
+        assert_abs_diff_eq!(c1, Color::new(1.5, 1.5, 0.2));
     }
 
     #[test]
@@ -263,9 +257,9 @@ mod tests {
         let mut c1 = Color::new(0.5, 1.0, 0.1);
         let c2 = Color::new(1.0, 0.5, 0.1);
 
-        assert_approx_eq!(Color, c1 - c2, Color::new(-0.5, 0.5, 0.0));
+        assert_abs_diff_eq!(c1 - c2, Color::new(-0.5, 0.5, 0.0));
         c1 -= c2;
-        assert_approx_eq!(Color, c1, Color::new(-0.5, 0.5, 0.0));
+        assert_abs_diff_eq!(c1, Color::new(-0.5, 0.5, 0.0));
     }
 
     #[test]
@@ -274,12 +268,12 @@ mod tests {
         let c2 = Color::new(0.5, 1.0, 0.1);
         let t = 2.0;
 
-        assert_approx_eq!(Color, c1 * c2, Color::new(0.5, 0.5, 0.01));
+        assert_abs_diff_eq!(c1 * c2, Color::new(0.5, 0.5, 0.01));
         c1 *= c2;
-        assert_approx_eq!(Color, c1, Color::new(0.5, 0.5, 0.01));
-        assert_approx_eq!(Color, c1 * t, Color::new(1.0, 1.0, 0.02));
+        assert_abs_diff_eq!(c1, Color::new(0.5, 0.5, 0.01));
+        assert_abs_diff_eq!(c1 * t, Color::new(1.0, 1.0, 0.02));
         c1 *= t;
-        assert_approx_eq!(Color, c1, Color::new(1.0, 1.0, 0.02));
+        assert_abs_diff_eq!(c1, Color::new(1.0, 1.0, 0.02));
     }
 
     #[test]
@@ -287,8 +281,8 @@ mod tests {
         let mut c1 = Color::new(1.0, 0.5, 0.1);
         let t = 2.0;
 
-        assert_approx_eq!(Color, c1 / t, Color::new(0.5, 0.25, 0.05));
+        assert_abs_diff_eq!(c1 / t, Color::new(0.5, 0.25, 0.05));
         c1 /= t;
-        assert_approx_eq!(Color, c1, Color::new(0.5, 0.25, 0.05));
+        assert_abs_diff_eq!(c1, Color::new(0.5, 0.25, 0.05));
     }
 }

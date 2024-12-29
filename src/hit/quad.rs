@@ -1,7 +1,7 @@
 use std::ops::RangeBounds;
 use std::sync::Arc;
 
-use float_cmp::{ApproxEq, F64Margin};
+use approx::abs_diff_eq;
 
 use crate::hit::{Hit, HitResult};
 use crate::material::Material;
@@ -43,7 +43,7 @@ impl Quad {
 impl Hit for Quad {
     fn hit(&self, ray: &Ray, t_interval: Interval) -> Option<HitResult> {
         let denominator = self.normal.dot(&ray.direction);
-        if denominator.abs().approx_eq(0.0, F64Margin::default()) {
+        if abs_diff_eq!(denominator.abs(), 0.0) {
             return None;
         }
 

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use float_cmp::{ApproxEq, F64Margin};
+use approx::abs_diff_eq;
 
 use crate::color::Color;
 use crate::hit::HitResult;
@@ -26,7 +26,7 @@ impl Material for Lambertian {
     fn scatter(&self, ray: &Ray, hit: &HitResult) -> Option<(Ray, Color)> {
         let mut direction = hit.normal + Vec3::random_unit_vector();
 
-        if direction.approx_eq(Vec3::zero(), F64Margin::default()) {
+        if abs_diff_eq!(direction, Vec3::zero()) {
             direction = hit.normal;
         }
 

@@ -72,7 +72,7 @@ impl Viewport {
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::assert_approx_eq;
+    use approx::assert_abs_diff_eq;
 
     use crate::vec::Vec3;
 
@@ -88,10 +88,10 @@ mod tests {
             Vec3(0.0, -1.0, 0.0),
         );
 
-        assert_approx_eq!(Vec3, viewport.edges.0, Vec3(2.0, 0.0, 0.0));
-        assert_approx_eq!(Vec3, viewport.edges.1, Vec3(0.0, -1.0, 0.0));
-        assert_approx_eq!(Vec3, viewport.pixel_size.0, Vec3(0.2, 0.0, 0.0));
-        assert_approx_eq!(Vec3, viewport.pixel_size.1, Vec3(0.0, -0.1, 0.0));
+        assert_abs_diff_eq!(viewport.edges.0, Vec3(2.0, 0.0, 0.0));
+        assert_abs_diff_eq!(viewport.edges.1, Vec3(0.0, -1.0, 0.0));
+        assert_abs_diff_eq!(viewport.pixel_size.0, Vec3(0.2, 0.0, 0.0));
+        assert_abs_diff_eq!(viewport.pixel_size.1, Vec3(0.0, -0.1, 0.0));
     }
 
     #[test]
@@ -111,10 +111,6 @@ mod tests {
             Vec3(0.0, -1.0, 0.0),
         );
 
-        assert_approx_eq!(
-            Vec3,
-            viewport_with_center.origin,
-            viewport_with_origin.origin
-        );
+        assert_abs_diff_eq!(viewport_with_center.origin, viewport_with_origin.origin);
     }
 }

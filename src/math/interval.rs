@@ -115,7 +115,7 @@ impl Default for Interval {
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::assert_approx_eq;
+    use approx::assert_abs_diff_eq;
 
     use super::Interval;
 
@@ -124,10 +124,10 @@ mod tests {
         let mut interval = Interval(0.0..1.0);
         let expanded = interval.expanded(0.1);
 
-        assert_approx_eq!(f64, expanded.start(), -0.05);
-        assert_approx_eq!(f64, expanded.end(), 1.05);
+        assert_abs_diff_eq!(expanded.start(), -0.05);
+        assert_abs_diff_eq!(expanded.end(), 1.05);
         interval.expand(0.1);
-        assert_approx_eq!(f64, interval.start(), -0.05);
-        assert_approx_eq!(f64, interval.end(), 1.05);
+        assert_abs_diff_eq!(interval.start(), -0.05);
+        assert_abs_diff_eq!(interval.end(), 1.05);
     }
 }

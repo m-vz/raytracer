@@ -36,7 +36,7 @@ impl Ray {
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::assert_approx_eq;
+    use approx::assert_abs_diff_eq;
 
     use crate::vec::Vec3;
 
@@ -51,6 +51,6 @@ mod tests {
         };
         let t = 2.0;
 
-        assert_approx_eq!(Vec3, ray.at(t), Vec3(2.0, 5.0, 3.0));
+        assert_abs_diff_eq!(ray.at(t), Vec3(2.0, 5.0, 3.0));
     }
 }

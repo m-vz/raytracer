@@ -259,7 +259,7 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
-    use float_cmp::assert_approx_eq;
+    use approx::assert_abs_diff_eq;
 
     use crate::camera::CameraBuilder;
     use crate::color::Color;
@@ -272,17 +272,9 @@ mod tests {
             .with_forward(Vec3(0.0, 0.0, -1.0))
             .build(Image::with_aspect_ratio(1, 1.0, Color::black()));
 
-        assert_approx_eq!(Vec3, camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));
-        assert_approx_eq!(f64, camera.viewport.width, 2.0);
-        assert_approx_eq!(
-            Vec3,
-            camera.viewport.edges.0.normalized(),
-            Vec3(1.0, 0.0, 0.0)
-        );
-        assert_approx_eq!(
-            Vec3,
-            camera.viewport.edges.1.normalized(),
-            Vec3(0.0, -1.0, 0.0)
-        );
+        assert_abs_diff_eq!(camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));
+        assert_abs_diff_eq!(camera.viewport.width, 2.0);
+        assert_abs_diff_eq!(camera.viewport.edges.0.normalized(), Vec3(1.0, 0.0, 0.0));
+        assert_abs_diff_eq!(camera.viewport.edges.1.normalized(), Vec3(0.0, -1.0, 0.0));
     }
 }
