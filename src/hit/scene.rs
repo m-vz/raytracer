@@ -5,13 +5,13 @@ use crate::math::aabb::Aabb;
 use crate::math::interval::Interval;
 use crate::ray::Ray;
 
-pub struct SceneBuilder {
-    objects: Vec<Arc<dyn Hit>>,
+pub struct Scene {
+    pub objects: Vec<Arc<dyn Hit>>,
     bounding_box: Aabb,
 }
 
-#[allow(dead_code)]
-impl SceneBuilder {
+#[allow(unused)]
+impl Scene {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
@@ -32,11 +32,6 @@ impl SceneBuilder {
             bounding_box: self.bounding_box,
         }
     }
-}
-
-pub struct Scene {
-    pub objects: Vec<Arc<dyn Hit>>,
-    bounding_box: Aabb,
 }
 
 impl Hit for Scene {
