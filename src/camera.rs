@@ -1,8 +1,5 @@
 use std::io;
-use std::path::Path;
 use std::sync::Arc;
-use std::thread::spawn;
-use std::time::Instant;
 
 use crate::background::background_color::BackgroundColor;
 use crate::background::Background;
@@ -105,7 +102,7 @@ impl CameraBuilder {
         self
     }
 
-    pub fn build(mut self, target: Image) -> Camera {
+    pub fn build(mut self, target: &Image) -> Camera {
         self.forward.normalize();
         let right = self.forward.cross(&self.up.normalized());
         let up = right.cross(&self.forward);
@@ -127,7 +124,6 @@ impl CameraBuilder {
             position: self.position,
             viewport,
             defocus_disk: (right * defocus_radius, up * defocus_radius),
-            target,
             samples: self.samples,
             max_bounces: self.max_bounces,
             background: self.background,
@@ -140,66 +136,20 @@ pub struct Camera {
     pub position: Vec3,
     viewport: Viewport,
     defocus_disk: (Vec3, Vec3),
-    target: Image,
     pub samples: u32,
     pub max_bounces: u32,
     pub background: Arc<dyn Background>,
 }
 
 impl Camera {
-    pub fn render_and_save<P: AsRef<Path>>(
-        &mut self,
-        root: &Arc<dyn Hit>,
-        path: P,
-        num_threads: u32,
-    ) -> Result<(), CameraError> {
-        println!("starting render...");
-        let t = Instant::now();
-        let samples_per_thread = f64::from(self.samples) / f64::from(num_threads);
-
-        if num_threads > 1 {
-            let mut threads = Vec::with_capacity(num_threads as usize);
-            for i in 0..num_threads {
-                let mut thread_camera = self.clone();
-                let thread_root = root.clone();
-
-                threads.push(spawn(move || {
-                    thread_camera.render(&thread_root, samples_per_thread, i == 0);
-                    thread_camera.target
-                }));
-            }
-
-            let mut images = Vec::with_capacity(num_threads as usize);
-            threads
-                .into_iter()
-                .for_each(|t| images.push(t.join().unwrap()));
-
-            println!("combining images...");
-            match Image::average(&images) {
-                Ok(average) => self.target = average,
-                Err(error) => return Err(CameraError::Averaging(error)),
-            }
-        } else {
-            self.render(root, samples_per_thread, true);
-        }
-
-        println!("writing file...");
-        if let Err(ImageError::IOError(error)) = self.target.write_png(path, true) {
-            return Err(error.into());
-        }
-
-        println!("done in {}ms", t.elapsed().as_millis());
-        Ok(())
-    }
-
-    fn render(&mut self, root: &Arc<dyn Hit>, samples: f64, log: bool) {
+    pub fn render(&self, root: &Arc<dyn Hit>, samples: f64, mut target: Image, log: bool) -> Image {
         let samples_sqrt = samples.sqrt();
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let dimension_indices = 0..samples_sqrt as u32;
         let subpixel_scale = 1.0 / samples_sqrt;
 
-        for y in 0..self.target.height() {
-            for x in 0..self.target.width() {
+        for y in 0..target.height() {
+            for x in 0..target.width() {
                 let mut color = Color::black();
 
                 for sample_y in dimension_indices.clone() {
@@ -221,14 +171,13 @@ impl Camera {
                 }
                 color /= samples;
 
-                self.target.set_pixel(x, y, color.clamped());
+                target.set_pixel(x, y, color.clamped());
 
                 #[allow(clippy::cast_precision_loss)]
                 if log {
                     print!(
                         "\rprogress: {:.2}%",
-                        f64::from(y * self.target.width() + x) * 100.0
-                            / self.target.pixel_count() as f64
+                        f64::from(y * target.width() + x) * 100.0 / target.pixel_count() as f64
                     );
                 }
             }
@@ -236,6 +185,8 @@ impl Camera {
         if log {
             println!();
         }
+
+        target
     }
 
     fn ray_color(&self, root: Arc<dyn Hit>, ray: Ray, bounces: u32) -> Color {
@@ -270,7 +221,7 @@ mod tests {
     fn created_correctly() {
         let camera = CameraBuilder::new(1.0, 10.0, 90.0)
             .with_forward(Vec3(0.0, 0.0, -1.0))
-            .build(Image::with_aspect_ratio(1, 1.0, Color::black()));
+            .build(&Image::with_aspect_ratio(1, 1.0, Color::black()));
 
         assert_abs_diff_eq!(camera.viewport.origin, Vec3(-1.0, 1.0, -1.0));
         assert_abs_diff_eq!(camera.viewport.width, 2.0);

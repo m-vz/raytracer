@@ -2,8 +2,10 @@
 #![allow(clippy::module_name_repetitions)]
 
 use std::sync::Arc;
+use std::thread::{self, JoinHandle};
+use std::time::Instant;
 
-use camera::CameraBuilder;
+use camera::{CameraBuilder, CameraError};
 
 use crate::background::background_color::BackgroundColor;
 use crate::background::hdri::Hdri;
@@ -39,19 +41,58 @@ mod vec;
 mod viewport;
 
 fn main() {
-    let width = 200;
+    let width = 512;
+    let num_threads = 8;
     let image = Image::with_aspect_ratio(width, 1.0, Color::black());
+    let (camera, root) = mis(&image);
 
-    let (mut camera, root) = mis(image);
+    println!("starting render...");
+    let t = Instant::now();
+    let threads = start_render(&camera, &root, &image, num_threads);
+    combine_results(threads, num_threads)
+        .expect("could not combine images")
+        .write_png("output/result.png", true)
+        .expect("could not write image");
+    println!("done in {}ms", t.elapsed().as_millis());
+}
 
-    let threads = 8;
-    camera
-        .render_and_save(&root, "output/result.png", threads)
-        .unwrap();
+fn start_render(
+    camera: &Camera,
+    root: &Arc<dyn Hit>,
+    target: &Image,
+    num_threads: u32,
+) -> Vec<JoinHandle<Image>> {
+    let samples_per_thread = f64::from(camera.samples) / f64::from(num_threads);
+    let mut threads = Vec::with_capacity(num_threads as usize);
+
+    for i in 0..num_threads {
+        let thread_camera = camera.clone();
+        let thread_target = target.clone();
+        let thread_root = root.clone();
+
+        threads.push(thread::spawn(move || {
+            thread_camera.render(&thread_root, samples_per_thread, thread_target, i == 0)
+        }));
+    }
+
+    threads
+}
+
+fn combine_results(
+    threads: Vec<JoinHandle<Image>>,
+    num_threads: u32,
+) -> Result<Image, CameraError> {
+    let mut thread_targets = Vec::with_capacity(num_threads as usize);
+    threads
+        .into_iter()
+        .for_each(|t| thread_targets.push(t.join().unwrap()));
+
+    println!("combining images...");
+    Image::average(&thread_targets).map_err(CameraError::Averaging)
 }
 
 #[allow(dead_code)]
-fn mis(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn mis(image: &Image) -> (Camera, Arc<dyn Hit>) {
     let incline = 0.13;
     let width = 1.4;
     (
@@ -151,7 +192,7 @@ fn mis(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn hdri(image: &Image) -> (Camera, Arc<dyn Hit>) {
     let white = Arc::new(Lambertian::colored(Color::white()));
     let a = 5.55;
 
@@ -215,7 +256,7 @@ fn hdri(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn cornell_box(image: &Image) -> (Camera, Arc<dyn Hit>) {
     let white = Arc::new(Lambertian::colored(Color::white()));
     let a = 555.0;
 
@@ -284,7 +325,7 @@ fn cornell_box(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn light(image: &Image) -> (Camera, Arc<dyn Hit>) {
     (
         CameraBuilder::new(8.0, 2.0, 60.0)
             .with_position(Vec3(0.0, 3.2, 8.0))
@@ -328,7 +369,7 @@ fn light(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn quads(image: &Image) -> (Camera, Arc<dyn Hit>) {
     (
         CameraBuilder::new(9.0, 0.0, 80.0)
             .with_position(Vec3(0.0, 0.0, 9.0))
@@ -381,7 +422,7 @@ fn quads(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn noise(image: &Image) -> (Camera, Arc<dyn Hit>) {
     (
         CameraBuilder::new(3.0, 0.0, 20.0)
             .with_position(Vec3(13.0, 2.0, 3.0))
@@ -414,7 +455,7 @@ fn noise(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn earth(image: &Image) -> (Camera, Arc<dyn Hit>) {
     let material = Arc::new(Lambertian {
         texture: Arc::new(ImageTexture::load("resources/earth.png")),
     });
@@ -454,7 +495,7 @@ fn earth(image: Image) -> (Camera, Arc<dyn Hit>) {
 }
 
 #[allow(dead_code)]
-fn checker_balls(image: Image) -> (Camera, Arc<dyn Hit>) {
+fn checker_balls(image: &Image) -> (Camera, Arc<dyn Hit>) {
     let camera_position = Vec3(0.0, 0.25, 1.0);
 
     (
