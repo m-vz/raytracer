@@ -5,6 +5,7 @@ use crate::math::aabb::Aabb;
 use crate::math::interval::Interval;
 use crate::ray::Ray;
 
+#[derive(Default)]
 pub struct Scene {
     pub objects: Vec<Arc<dyn Hit>>,
     bounding_box: Aabb,
@@ -12,25 +13,11 @@ pub struct Scene {
 
 #[allow(unused)]
 impl Scene {
-    pub fn new() -> Self {
-        Self {
-            objects: Vec::new(),
-            bounding_box: Aabb::default(),
-        }
-    }
-
     pub fn add(mut self, object: Arc<dyn Hit>) -> Self {
         self.bounding_box.combine(object.bounding_box());
         self.objects.push(object);
 
         self
-    }
-
-    pub fn build(self) -> Self {
-        Self {
-            objects: self.objects,
-            bounding_box: self.bounding_box,
-        }
     }
 }
 

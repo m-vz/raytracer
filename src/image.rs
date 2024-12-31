@@ -11,6 +11,7 @@ use crate::math;
 
 #[derive(Debug)]
 pub enum ImageError {
+    #[allow(dead_code)] // can be removed as soon as this error is logged correctly
     IOError(std::io::Error),
     #[allow(dead_code)] // can be removed as soon as this error is logged correctly
     SaveError(image::ImageError),
