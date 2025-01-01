@@ -2,11 +2,12 @@
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::multiple_crate_versions)]
 
-use std::sync::Arc;
+use std::sync::{mpsc, Arc};
 use std::thread::{self, JoinHandle};
 use std::time::Instant;
 
 use camera::{CameraBuilder, CameraError};
+use ui::Preview;
 
 use crate::background::background_color::BackgroundColor;
 use crate::background::hdri::Hdri;
@@ -38,6 +39,7 @@ mod material;
 mod math;
 mod ray;
 mod texture;
+mod ui;
 mod vec;
 mod viewport;
 
@@ -46,15 +48,24 @@ fn main() {
     let num_threads = 8;
     let image = Image::with_aspect_ratio(width, 1.0, Color::black());
     let (camera, root) = mis(&image);
+    let (shutdown_tx, shutdown_rx) = mpsc::channel();
 
-    println!("starting render...");
-    let t = Instant::now();
-    let threads = start_render(&camera, &root, &image, num_threads);
-    combine_results(threads, num_threads)
-        .expect("could not combine images")
-        .write_png("output/result.png", true)
-        .expect("could not write image");
-    println!("done in {}ms", t.elapsed().as_millis());
+    let render_thread = thread::spawn(move || {
+        println!("starting render...");
+
+        let t = Instant::now();
+        let threads = start_render(&camera, &root, &image, num_threads);
+        combine_results(threads, num_threads)
+            .expect("could not combine images")
+            .write_png("output/result.png", true)
+            .expect("could not write image");
+
+        println!("done in {}ms", t.elapsed().as_millis());
+
+        shutdown_tx.send(()).expect("could not shut down ui");
+    });
+    Preview::new(shutdown_rx).run();
+    render_thread.join().expect("could not join render thread");
 }
 
 fn start_render(
