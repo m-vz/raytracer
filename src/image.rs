@@ -3,6 +3,7 @@ use std::fs::{create_dir_all, File};
 use std::io::{BufReader, Write};
 use std::path::Path;
 
+use egui::ColorImage;
 use image::codecs::hdr::HdrDecoder;
 use image::{ImageBuffer, Rgb};
 
@@ -25,7 +26,7 @@ impl From<std::io::Error> for ImageError {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Image {
     width: u32,
     height: u32,
@@ -201,6 +202,19 @@ impl Image {
             });
 
         image.save(path).map_err(ImageError::SaveError)
+    }
+}
+
+impl From<&Image> for ColorImage {
+    fn from(value: &Image) -> Self {
+        Self::from_rgb(
+            [value.width() as usize, value.height() as usize],
+            &value
+                .data
+                .iter()
+                .flat_map(Color::as_bytes)
+                .collect::<Vec<_>>(),
+        )
     }
 }
 

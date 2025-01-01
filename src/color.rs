@@ -68,6 +68,15 @@ impl Color {
     pub fn to_gamma_space(self) -> Self {
         Self(Vec3(self.0 .0.sqrt(), self.0 .1.sqrt(), self.0 .2.sqrt()))
     }
+
+    pub fn as_bytes(&self) -> [u8; 3] {
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        [
+            (self.r() * 255.0).round() as u8,
+            (self.g() * 255.0).round() as u8,
+            (self.b() * 255.0).round() as u8,
+        ]
+    }
 }
 
 impl Add for Color {

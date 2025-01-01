@@ -2,6 +2,7 @@
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::multiple_crate_versions)]
 
+use std::sync::mpsc::Sender;
 use std::sync::{mpsc, Arc};
 use std::thread::{self, JoinHandle};
 use std::time::Instant;
@@ -49,12 +50,14 @@ fn main() {
     let image = Image::with_aspect_ratio(width, 1.0, Color::black());
     let (camera, root) = mis(&image);
     let (shutdown_tx, shutdown_rx) = mpsc::channel();
+    let (samples_tx, samples_rx) = mpsc::channel();
+    let preview = Preview::new(shutdown_rx, samples_rx, image.clone());
 
     let render_thread = thread::spawn(move || {
         println!("starting render...");
 
         let t = Instant::now();
-        let threads = start_render(&camera, &root, &image, num_threads);
+        let threads = start_render(&camera, &root, &image, &samples_tx, num_threads);
         combine_results(threads, num_threads)
             .expect("could not combine images")
             .write_png("output/result.png", true)
@@ -64,7 +67,7 @@ fn main() {
 
         shutdown_tx.send(()).expect("could not shut down ui");
     });
-    Preview::new(shutdown_rx).run();
+    preview.run();
     render_thread.join().expect("could not join render thread");
 }
 
@@ -72,6 +75,7 @@ fn start_render(
     camera: &Camera,
     root: &Arc<dyn Hit>,
     target: &Image,
+    samples_tx: &Sender<((u32, u32), Color)>,
     num_threads: u32,
 ) -> Vec<JoinHandle<Image>> {
     let samples_per_thread = f64::from(camera.samples) / f64::from(num_threads);
@@ -81,9 +85,16 @@ fn start_render(
         let thread_camera = camera.clone();
         let thread_target = target.clone();
         let thread_root = root.clone();
+        let thread_samples_tx = samples_tx.clone();
 
         threads.push(thread::spawn(move || {
-            thread_camera.render(&thread_root, samples_per_thread, thread_target, i == 0)
+            thread_camera.render(
+                &thread_root,
+                samples_per_thread,
+                thread_target,
+                &thread_samples_tx,
+                i == 0,
+            )
         }));
     }
 

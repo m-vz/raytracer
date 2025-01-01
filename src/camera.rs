@@ -1,4 +1,5 @@
 use std::io;
+use std::sync::mpsc::Sender;
 use std::sync::Arc;
 
 use crate::background::background_color::BackgroundColor;
@@ -142,7 +143,14 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn render(&self, root: &Arc<dyn Hit>, samples: f64, mut target: Image, log: bool) -> Image {
+    pub fn render(
+        &self,
+        root: &Arc<dyn Hit>,
+        samples: f64,
+        mut target: Image,
+        samples_tx: &Sender<((u32, u32), Color)>,
+        log: bool,
+    ) -> Image {
         let samples_sqrt = samples.sqrt();
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let dimension_indices = 0..samples_sqrt as u32;
@@ -170,8 +178,10 @@ impl Camera {
                     }
                 }
                 color /= samples;
+                color.clamp();
 
-                target.set_pixel(x, y, color.clamped());
+                let _ = samples_tx.send(((x, y), color));
+                target.set_pixel(x, y, color);
 
                 #[allow(clippy::cast_precision_loss)]
                 if log {
