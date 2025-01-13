@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::fs::{create_dir_all, File};
+use std::fs::{self, create_dir_all, File};
 use std::io::{BufReader, Write};
 use std::path::Path;
 
@@ -201,6 +201,7 @@ impl Image {
                 }
             });
 
+        path.as_ref().parent().map(fs::create_dir_all);
         image.save(path).map_err(ImageError::SaveError)
     }
 }
