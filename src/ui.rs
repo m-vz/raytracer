@@ -34,7 +34,8 @@ impl Preview {
             viewport: ViewportBuilder::default().with_title("raytracer"),
             ..Default::default()
         };
-        let _result = eframe::run_native("raytracer", options, Box::new(|_| Ok(Box::new(self))));
+        eframe::run_native("raytracer", options, Box::new(|_| Ok(Box::new(self))))
+            .expect("Could not start preview");
     }
 }
 
