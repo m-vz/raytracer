@@ -1,4 +1,4 @@
-> **Warning**
+> [!Warning]
 > Hic Sunt Dracones
 >
 > This project is in its infancy and this repository is far from being useful.
